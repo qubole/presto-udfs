@@ -13,11 +13,6 @@
     <artifactId>presto-udfs</artifactId>
     <name>presto-udfs</name>
 
-    <properties>
-        <air.main.basedir>${project.parent.basedir}</air.main.basedir>
-        <dep.jmh.version>0.9.5</dep.jmh.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.facebook.presto</groupId>
