@@ -30,12 +30,15 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import io.airlift.log.Logger;
+
 /**
  * Created by stagra on 2/17/15.
  */
 public class UdfFactory implements FunctionFactory
 {
     private final TypeManager typeManager;
+    private static final Logger log = Logger.get(UdfFactory.class);
 
     public UdfFactory(TypeManager tm)
     {
@@ -65,8 +68,7 @@ public class UdfFactory implements FunctionFactory
                     builder.function((ParametricAggregation) clazz.newInstance());
                 }
                 catch (InstantiationException | IllegalAccessException e) {
-                    System.out.println(String.format("Could not add %s, exception: %s, stack: %s", clazz.getCanonicalName(), e, e.getStackTrace()));
-                    // TODO: add log
+                    log.info(String.format("Could not add %s, exception: %s, stack: %s", clazz.getCanonicalName(), e, e.getStackTrace()));
                 }
             }
             else {
@@ -79,8 +81,7 @@ public class UdfFactory implements FunctionFactory
                             // This is alright, must be helper classes
                         }
                         else {
-                            System.out.println(String.format("Could not add %s, exception: %s, stack: %s", clazz.getCanonicalName(), e, e.getStackTrace()));
-                            // TODO: add log
+                            log.info(String.format("Could not add %s, exception: %s, stack: %s", clazz.getCanonicalName(), e, e.getStackTrace()));
                         }
                     }
                 }
@@ -93,8 +94,7 @@ public class UdfFactory implements FunctionFactory
                         builder.aggregate(clazz);
                     }
                     catch (Exception e) {
-                        System.out.println(String.format("Could not add %s, exception: %s, stack: %s", clazz.getCanonicalName(), e, e.getStackTrace()));
-                        // TODO: add log
+                        log.info(String.format("Could not add %s, exception: %s, stack: %s", clazz.getCanonicalName(), e, e.getStackTrace()));
                     }
                 }
             }
