@@ -20,6 +20,7 @@ import com.facebook.presto.spi.type.StandardTypes;
 import com.facebook.presto.type.SqlType;
 import io.airlift.slice.Slice;
 import io.airlift.slice.Slices;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Created by stagra on 2/17/15.
@@ -34,8 +35,6 @@ public class NumberSystemFunctions
     public static Slice bin(@SqlType(StandardTypes.BIGINT) long num)
     {
         String bin = Long.toBinaryString(num);
-        Slice binSlice = Slices.allocate(bin.length());
-        binSlice.setBytes(0, bin.getBytes());
-        return binSlice;
+        return Slices.copiedBuffer(bin, UTF_8);
     }
 }

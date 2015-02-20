@@ -34,7 +34,7 @@ public class EntendedMathFunctions
         return Math.toDegrees(num);
     }
 
-    @Description("Converts radians to ")
+    @Description("Converts radians to degrees")
     @ScalarFunction
     @SqlType(StandardTypes.DOUBLE)
     public static double radians(@SqlType(StandardTypes.DOUBLE) double num)

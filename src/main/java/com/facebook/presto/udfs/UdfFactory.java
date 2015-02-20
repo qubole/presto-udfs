@@ -17,10 +17,11 @@ package com.facebook.presto.udfs;
 import com.facebook.presto.metadata.FunctionFactory;
 import com.facebook.presto.metadata.FunctionListBuilder;
 import com.facebook.presto.metadata.ParametricFunction;
+import com.facebook.presto.metadata.ParametricAggregation;
+import com.facebook.presto.operator.aggregation.AggregationFunction;
 import com.facebook.presto.spi.type.TypeManager;
 import com.google.common.collect.ImmutableList;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
@@ -34,11 +35,7 @@ import java.util.zip.ZipInputStream;
  */
 public class UdfFactory implements FunctionFactory
 {
-    private File scalarDir = new File("scalar");
-    private File aggregateDir = new File("aggregate");
     private final TypeManager typeManager;
-
-    private final List<String> functionPackages = ImmutableList.of("com.facebook.presto.udfs.scalar");
 
     public UdfFactory(TypeManager tm)
     {
@@ -63,12 +60,43 @@ public class UdfFactory implements FunctionFactory
     private void addFunctions(FunctionListBuilder builder, List<Class<?>> classes)
     {
         for (Class<?> clazz : classes) {
-            // TODO: add classes if they actually have scalar or aggregate annotations
-            if (clazz.getCanonicalName().startsWith("com.facebook.presto.udfs.scalar")) {
-                builder.scalar(clazz);
+            if (ParametricAggregation.class.isAssignableFrom(clazz)) {
+                try {
+                    builder.function((ParametricAggregation) clazz.newInstance());
+                }
+                catch (InstantiationException | IllegalAccessException e) {
+                    System.out.println(String.format("Could not add %s, exception: %s, stack: %s", clazz.getCanonicalName(), e, e.getStackTrace()));
+                    // TODO: add log
+                }
             }
-            else if (clazz.getCanonicalName().startsWith("com.facebook.presto.udfs.aggregate")) {
-                builder.aggregate(clazz);
+            else {
+                if (clazz.getCanonicalName().startsWith("com.facebook.presto.udfs.scalar")) {
+                    try {
+                        builder.scalar(clazz);
+                    }
+                    catch (Exception e) {
+                        if (e.getCause() instanceof IllegalAccessException) {
+                            // This is alright, must be helper classes
+                        }
+                        else {
+                            System.out.println(String.format("Could not add %s, exception: %s, stack: %s", clazz.getCanonicalName(), e, e.getStackTrace()));
+                            // TODO: add log
+                        }
+                    }
+                }
+                else if (clazz.getCanonicalName().startsWith("com.facebook.presto.udfs.aggregate")) {
+                    AggregationFunction aggregationAnnotation = clazz.getAnnotation(AggregationFunction.class);
+                    if (aggregationAnnotation == null) {
+                        continue;
+                    }
+                    try {
+                        builder.aggregate(clazz);
+                    }
+                    catch (Exception e) {
+                        System.out.println(String.format("Could not add %s, exception: %s, stack: %s", clazz.getCanonicalName(), e, e.getStackTrace()));
+                        // TODO: add log
+                    }
+                }
             }
         }
     }
@@ -88,7 +116,7 @@ public class UdfFactory implements FunctionFactory
         for (ZipEntry entry = zip.getNextEntry(); entry != null; entry = zip.getNextEntry()) {
             if (entry.getName().endsWith(".class") && !entry.isDirectory()) {
                 String className = entry.getName().replace("/", "."); // This still has .class at the end
-                className = className.substring(0, className.length() - 6);
+                className = className.substring(0, className.length() - 6); // remvove .class from end
                 try {
                     classes.add(Class.forName(className));
                 }
