@@ -84,7 +84,7 @@ public class UdfFactory implements FunctionFactory
                         }
                     }
                 }
-                else if (clazz.getCanonicalName().startsWith("com.facebook.presto.udfs.aggregate")) {
+                else if (clazz.getCanonicalName().startsWith("com.facebook.presto.udfs.aggregation")) {
                     AggregationFunction aggregationAnnotation = clazz.getAnnotation(AggregationFunction.class);
                     if (aggregationAnnotation == null) {
                         continue;
