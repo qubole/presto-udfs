@@ -22,11 +22,11 @@ import com.facebook.presto.type.SqlType;
 /**
  * Created by stagra on 2/17/15.
  */
-public class EntendedMathFunctions
+public class ExtendedMathFunctions
 {
-    private EntendedMathFunctions() {}
+    private ExtendedMathFunctions() {}
 
-    @Description("Converts degress to radians")
+    @Description("Converts radians to degrees")
     @ScalarFunction
     @SqlType(StandardTypes.DOUBLE)
     public static double degrees(@SqlType(StandardTypes.DOUBLE) double num)
@@ -34,7 +34,7 @@ public class EntendedMathFunctions
         return Math.toDegrees(num);
     }
 
-    @Description("Converts radians to degrees")
+    @Description("Converts degress to radians")
     @ScalarFunction
     @SqlType(StandardTypes.DOUBLE)
     public static double radians(@SqlType(StandardTypes.DOUBLE) double num)
