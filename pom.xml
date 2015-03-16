@@ -28,9 +28,13 @@
     -->
     <packaging>presto-plugin</packaging>
 
+    <!-- Uncomment this if you're placing this as a subdirectory of presto and you want to run their style
+         checker.  Otherwise, you can get rid of it. -->
+    <!--
     <properties>
         <air.main.basedir>${project.parent.basedir}</air.main.basedir>
     </properties>
+    -->
 
     <artifactId>presto-udfs</artifactId>
     <name>presto-udfs</name>
