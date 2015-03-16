@@ -4,11 +4,33 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>com.facebook.presto</groupId>
+        <!-- Parent should be presto-root if this is a subdirectory of presto.  If this is a subdirectory
+             of your own project, then set it correspondingly.
+        -->
         <artifactId>presto-root</artifactId>
+
+        <!-- Replace this with whatever version of Presto you're using. -->
         <version>0.90-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
+
+    <!-- This is needed if this project is a subdirectory of presto.  Otherwise, if this lives as a
+         subdirectory of your own project, then you'll need to do do the following workaround:
+         1. Create a file:  src/main/resources/META-INF/services/com.facebook.presto.spi.Plugin
+         2. Put the value presto.udfs.UdfPlugin in it
+         
+         Without this file, the PluginManager will not be able to see your plugin.
+         
+         Note that the presto-root has presto-maven-plugin and takari-lifecycle-plugin, which ostensibly
+         take care of packinging up the above file.  I could not get that to work, so I just relied on
+         the Maven resource packager to explicitly copy the file instead.
+    -->
+    <packaging>presto-plugin</packaging>
+
+    <properties>
+        <air.main.basedir>${project.parent.basedir}</air.main.basedir>
+    </properties>
 
     <artifactId>presto-udfs</artifactId>
     <name>presto-udfs</name>
@@ -17,31 +39,37 @@
         <dependency>
             <groupId>com.facebook.presto</groupId>
             <artifactId>presto-spi</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>com.facebook.presto</groupId>
             <artifactId>presto-main</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>io.airlift</groupId>
             <artifactId>slice</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>javax.inject</groupId>
             <artifactId>javax.inject</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>io.airlift</groupId>
             <artifactId>log</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
