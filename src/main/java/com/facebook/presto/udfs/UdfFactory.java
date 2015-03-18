@@ -19,6 +19,7 @@ import com.facebook.presto.metadata.FunctionListBuilder;
 import com.facebook.presto.metadata.ParametricFunction;
 import com.facebook.presto.metadata.ParametricAggregation;
 import com.facebook.presto.operator.aggregation.AggregationFunction;
+import com.facebook.presto.operator.window.WindowFunction;
 import com.facebook.presto.spi.type.TypeManager;
 import com.google.common.collect.ImmutableList;
 
@@ -63,16 +64,17 @@ public class UdfFactory implements FunctionFactory
     private void addFunctions(FunctionListBuilder builder, List<Class<?>> classes)
     {
         for (Class<?> clazz : classes) {
+            log.info("Adding: " + clazz);
             if (ParametricAggregation.class.isAssignableFrom(clazz)) {
                 try {
                     builder.function((ParametricAggregation) clazz.newInstance());
                 }
                 catch (InstantiationException | IllegalAccessException e) {
-                    log.info(String.format("Could not add %s, exception: %s, stack: %s", clazz.getCanonicalName(), e, e.getStackTrace()));
+                    log.info(String.format("Could not add %s, exception: %s, stack: %s", clazz.getName(), e, e.getStackTrace()));
                 }
             }
             else {
-                if (clazz.getCanonicalName().startsWith("com.facebook.presto.udfs.scalar")) {
+                if (clazz.getName().startsWith("com.facebook.presto.udfs.scalar")) {
                     try {
                         builder.scalar(clazz);
                     }
@@ -81,11 +83,11 @@ public class UdfFactory implements FunctionFactory
                             // This is alright, must be helper classes
                         }
                         else {
-                            log.info(String.format("Could not add %s, exception: %s, stack: %s", clazz.getCanonicalName(), e, e.getStackTrace()));
+                            log.info(String.format("Could not add %s, exception: %s, stack: %s", clazz.getName(), e, e.getStackTrace()));
                         }
                     }
                 }
-                else if (clazz.getCanonicalName().startsWith("com.facebook.presto.udfs.aggregation")) {
+                else if (clazz.getName().startsWith("com.facebook.presto.udfs.aggregation")) {
                     AggregationFunction aggregationAnnotation = clazz.getAnnotation(AggregationFunction.class);
                     if (aggregationAnnotation == null) {
                         continue;
@@ -94,9 +96,22 @@ public class UdfFactory implements FunctionFactory
                         builder.aggregate(clazz);
                     }
                     catch (Exception e) {
-                        log.info(String.format("Could not add %s, exception: %s, stack: %s", clazz.getCanonicalName(), e, e.getStackTrace()));
+                        log.info(String.format("Could not add %s, exception: %s, stack: %s", clazz.getName(), e, e.getStackTrace()));
                     }
                 }
+                else if (clazz.getName().startsWith("com.facebook.presto.udfs.window")) {
+                    if (WindowFunctionDefinition.class.isAssignableFrom(clazz)) {
+                        try {
+                            WindowFunctionDefinition def = (WindowFunctionDefinition) clazz.newInstance();
+                            builder.window(def.getName(), def.getReturnType(), def.getArgumentTypes(), (Class<? extends WindowFunction>) clazz);
+                        }
+                        catch (InstantiationException | IllegalAccessException e) {
+                            log.info(String.format("Could not add %s, exception: %s, stack: %s", clazz.getName(), e, e.getStackTrace()));
+                        }
+                    }
+
+                }
+
             }
         }
     }
@@ -105,7 +120,7 @@ public class UdfFactory implements FunctionFactory
             throws IOException
     {
         List<Class<?>> classes = new ArrayList<Class<?>>();
-        String classResource = this.getClass().getCanonicalName().replace(".", "/") + ".class";
+        String classResource = this.getClass().getName().replace(".", "/") + ".class";
         String jarURLFile = Thread.currentThread().getContextClassLoader().getResource(classResource).getFile();
         int jarEnd = jarURLFile.indexOf('!');
         String jarLocation = jarURLFile.substring(0, jarEnd); // This is in URL format, convert once more to get actual file location
