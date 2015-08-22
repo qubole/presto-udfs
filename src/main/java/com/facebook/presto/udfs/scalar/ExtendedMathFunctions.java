@@ -13,12 +13,12 @@
  */
 
 package com.facebook.presto.udfs.scalar;
-
+/*
 import com.facebook.presto.operator.Description;
 import com.facebook.presto.operator.scalar.ScalarFunction;
 import com.facebook.presto.spi.type.StandardTypes;
 import com.facebook.presto.type.SqlType;
-
+*/
 /**
  * Created by stagra on 2/17/15.
  */
@@ -26,6 +26,8 @@ public class ExtendedMathFunctions
 {
     private ExtendedMathFunctions() {}
 
+    /*
+     * These functions are now part of presto. Leaving the code here to serve as example to write scalar uds
     @Description("Converts radians to degrees")
     @ScalarFunction
     @SqlType(StandardTypes.DOUBLE)
@@ -41,4 +43,5 @@ public class ExtendedMathFunctions
     {
         return Math.toRadians(num);
     }
+    */
 }
