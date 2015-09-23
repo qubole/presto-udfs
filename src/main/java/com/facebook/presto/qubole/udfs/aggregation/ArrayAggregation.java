@@ -11,54 +11,53 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.facebook.presto.udfs.aggregation;
-
-import static com.facebook.presto.metadata.Signature.typeParameter;
-import static com.facebook.presto.operator.aggregation.AggregationMetadata.ParameterMetadata.ParameterType.BLOCK_INDEX;
-import static com.facebook.presto.operator.aggregation.AggregationMetadata.ParameterMetadata.ParameterType.INPUT_CHANNEL;
-import static com.facebook.presto.operator.aggregation.AggregationMetadata.ParameterMetadata.ParameterType.STATE;
-import static com.facebook.presto.operator.aggregation.AggregationUtils.generateAggregationName;
-import static com.facebook.presto.type.TypeUtils.parameterizedTypeName;
-import static com.facebook.presto.util.Reflection.method;
-
-import com.facebook.presto.operator.aggregation.AccumulatorCompiler;
-import com.facebook.presto.operator.aggregation.AggregationMetadata;
-import com.facebook.presto.operator.aggregation.GenericAccumulatorFactoryBinder;
-import com.facebook.presto.operator.aggregation.InternalAggregationFunction;
-import io.airlift.slice.DynamicSliceOutput;
-import io.airlift.slice.Slice;
-import io.airlift.slice.SliceInput;
-import io.airlift.slice.SliceOutput;
-
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+package com.facebook.presto.qubole.udfs.aggregation;
 
 import com.facebook.presto.byteCode.DynamicClassLoader;
 import com.facebook.presto.metadata.FunctionInfo;
 import com.facebook.presto.metadata.FunctionRegistry;
 import com.facebook.presto.metadata.ParametricAggregation;
 import com.facebook.presto.metadata.Signature;
+import com.facebook.presto.operator.aggregation.AccumulatorCompiler;
+import com.facebook.presto.operator.aggregation.AggregationMetadata;
 import com.facebook.presto.operator.aggregation.AggregationMetadata.ParameterMetadata;
-import com.facebook.presto.udfs.aggregation.state.ArrayAggregationState;
-import com.facebook.presto.udfs.aggregation.state.ArrayAggregationStateFactory;
-import com.facebook.presto.udfs.aggregation.state.ArrayAggregationStateSerializer;
+import com.facebook.presto.operator.aggregation.GenericAccumulatorFactoryBinder;
+import com.facebook.presto.operator.aggregation.InternalAggregationFunction;
+import com.facebook.presto.qubole.udfs.aggregation.state.ArrayAggregationState;
+import com.facebook.presto.qubole.udfs.aggregation.state.ArrayAggregationStateFactory;
+import com.facebook.presto.qubole.udfs.aggregation.state.ArrayAggregationStateSerializer;
 import com.facebook.presto.spi.block.Block;
 import com.facebook.presto.spi.block.BlockBuilder;
 import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.spi.type.TypeManager;
 import com.facebook.presto.type.ArrayType;
 import com.google.common.collect.ImmutableList;
+import io.airlift.slice.DynamicSliceOutput;
+import io.airlift.slice.Slice;
+import io.airlift.slice.SliceInput;
+import io.airlift.slice.SliceOutput;
+
+import java.lang.invoke.MethodHandle;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import static com.facebook.presto.metadata.Signature.typeParameter;
+import static com.facebook.presto.operator.aggregation.AggregationMetadata.ParameterMetadata.ParameterType.BLOCK_INDEX;
+import static com.facebook.presto.operator.aggregation.AggregationMetadata.ParameterMetadata.ParameterType.BLOCK_INPUT_CHANNEL;
+import static com.facebook.presto.operator.aggregation.AggregationMetadata.ParameterMetadata.ParameterType.STATE;
+import static com.facebook.presto.operator.aggregation.AggregationUtils.generateAggregationName;
+import static com.facebook.presto.type.TypeUtils.parameterizedTypeName;
+import static com.facebook.presto.util.Reflection.methodHandle;
 
 public class ArrayAggregation
         extends ParametricAggregation
 {
     public static final ArrayAggregation ARRAY_AGGREGATION = new ArrayAggregation();
     private static final String NAME = "array_aggr";
-    private static final Method OUTPUT_FUNCTION = method(ArrayAggregation.class, "output", ArrayAggregationState.class, BlockBuilder.class);
-    private static final Method INPUT_FUNCTION = method(ArrayAggregation.class, "input", ArrayAggregationState.class, Block.class, int.class);
-    private static final Method COMBINE_FUNCTION = method(ArrayAggregation.class, "combine", ArrayAggregationState.class, ArrayAggregationState.class);
+    private static final MethodHandle INPUT_FUNCTION = methodHandle(ArrayAggregation.class, "input", Type.class, ArrayAggregationState.class, Block.class, int.class);
+    private static final MethodHandle COMBINE_FUNCTION = methodHandle(ArrayAggregation.class, "combine", Type.class, ArrayAggregationState.class, ArrayAggregationState.class);
+    private static final MethodHandle OUTPUT_FUNCTION = methodHandle(ArrayAggregation.class, "output", ArrayAggregationState.class, BlockBuilder.class);
     private static final Signature SIGNATURE = new Signature(NAME, ImmutableList.of(typeParameter("T")), "array<T>", ImmutableList.of("T"), false, false);
 
     @Override
@@ -81,7 +80,7 @@ public class ArrayAggregation
                 parameterizedTypeName("array", valueType.getTypeSignature()),
                 valueType.getTypeSignature());
         InternalAggregationFunction aggregation = generateAggregation(valueType);
-        return new FunctionInfo(signature, getDescription(), aggregation.getIntermediateType().getTypeSignature(), aggregation, false);
+        return new FunctionInfo(signature, getDescription(), aggregation);
     }
 
     private static InternalAggregationFunction generateAggregation(Type valueType)
@@ -97,10 +96,10 @@ public class ArrayAggregation
         AggregationMetadata metadata = new AggregationMetadata(
                 generateAggregationName(NAME, valueType, inputTypes),
                 createInputParameterMetadata(valueType),
-                INPUT_FUNCTION,
+                INPUT_FUNCTION.bindTo(valueType),
                 null,
                 null,
-                COMBINE_FUNCTION,
+                COMBINE_FUNCTION.bindTo(valueType),
                 OUTPUT_FUNCTION,
                 ArrayAggregationState.class,
                 stateSerializer,
@@ -114,10 +113,10 @@ public class ArrayAggregation
 
     private static List<ParameterMetadata> createInputParameterMetadata(Type value)
     {
-        return ImmutableList.of(new ParameterMetadata(STATE), new ParameterMetadata(INPUT_CHANNEL, value), new ParameterMetadata(BLOCK_INDEX));
+        return ImmutableList.of(new ParameterMetadata(STATE), new ParameterMetadata(BLOCK_INPUT_CHANNEL, value), new ParameterMetadata(BLOCK_INDEX));
     }
 
-    public static void input(ArrayAggregationState state, Block value, int position)
+    public static void input(Type type, ArrayAggregationState state, Block value, int position)
     {
         if (state.getSliceOutput() == null) {
             SliceOutput sliceOutput = new DynamicSliceOutput(12);
@@ -126,6 +125,11 @@ public class ArrayAggregation
         }
         state.setEntries(state.getEntries() + 1);
         appendTo(state.getType(), state.getSliceOutput(), value, position);
+    }
+
+    public static void input(ArrayAggregationState state, Block value, int position)
+    {
+        input(state.getType(), state, value, position);
     }
 
     private static void appendTo(Type type, SliceOutput output, Block block, int position)
@@ -149,7 +153,7 @@ public class ArrayAggregation
         }
     }
 
-    public static void combine(ArrayAggregationState state, ArrayAggregationState otherState)
+    public static void combine(Type type, ArrayAggregationState state, ArrayAggregationState otherState)
     {
         SliceOutput s1 = state.getSliceOutput();
         SliceOutput s2 = otherState.getSliceOutput();
@@ -163,6 +167,11 @@ public class ArrayAggregation
         }
     }
 
+    public static void combine(ArrayAggregationState state, ArrayAggregationState otherState)
+    {
+        combine(state.getType(), state, otherState);
+    }
+
     public static void output(ArrayAggregationState state, BlockBuilder out)
     {
         if (state.getSliceOutput() == null) {
@@ -173,7 +182,7 @@ public class ArrayAggregation
             Type type = state.getType();
             long entries = state.getEntries();
             List<Object> values = toValues(type, sliceInput, entries);
-            Slice s = ArrayType.toStackRepresentation(values);
+            Slice s = ArrayType.toStackRepresentation(values, type);
             out.writeBytes(s, 0, s.length());
             out.closeEntry();
         }

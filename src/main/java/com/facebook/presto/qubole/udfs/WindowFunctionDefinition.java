@@ -11,21 +11,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.facebook.presto.udfs.aggregation.state;
-
-import com.facebook.presto.operator.aggregation.state.AccumulatorState;
-import com.facebook.presto.operator.aggregation.state.AccumulatorStateMetadata;
-import io.airlift.slice.SliceOutput;
+package com.facebook.presto.qubole.udfs;
 
 import com.facebook.presto.spi.type.Type;
 
-@AccumulatorStateMetadata(stateFactoryClass = ArrayAggregationStateFactory.class, stateSerializerClass = ArrayAggregationStateSerializer.class)
-public interface ArrayAggregationState
-    extends AccumulatorState
+import java.util.List;
+
+/**
+ * Created by user on 13-03-2015.
+ */
+public interface WindowFunctionDefinition
 {
-    Type getType();
-    SliceOutput getSliceOutput();
-    void setSliceOutput(SliceOutput value);
-    long getEntries();
-    void setEntries(long entries);
+    public String getName();
+
+    public Type getReturnType();
+
+    public List<? extends Type> getArgumentTypes();
 }

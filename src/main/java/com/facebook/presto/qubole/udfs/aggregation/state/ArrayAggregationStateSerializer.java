@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.facebook.presto.udfs.aggregation.state;
+package com.facebook.presto.qubole.udfs.aggregation.state;
 
 import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
 

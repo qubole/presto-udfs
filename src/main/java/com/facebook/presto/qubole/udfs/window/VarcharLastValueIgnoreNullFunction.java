@@ -11,29 +11,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.facebook.presto.udfs.window;
+package com.facebook.presto.qubole.udfs.window;
 
 import com.facebook.presto.spi.type.Type;
-import com.facebook.presto.udfs.WindowFunctionDefinition;
+import com.facebook.presto.qubole.udfs.WindowFunctionDefinition;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 
-import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
+import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
 
 /**
  * Created by user on 13-03-2015.
  */
-public class BooleanLastValueIgnoreNullFunction
+public class VarcharLastValueIgnoreNullFunction
         extends FirstOrLastValueIgnoreNullFunction
         implements WindowFunctionDefinition
 {
-    public BooleanLastValueIgnoreNullFunction(List<Integer> argumentChannels)
+    public VarcharLastValueIgnoreNullFunction(List<Integer> argumentChannels)
     {
-        super(BOOLEAN, argumentChannels, Direction.LAST);
+        super(VARCHAR, argumentChannels, Direction.LAST);
     }
 
-    public BooleanLastValueIgnoreNullFunction()
+    public VarcharLastValueIgnoreNullFunction()
     {
         // Constructor is used by UdfFactory
         super();
@@ -48,12 +48,12 @@ public class BooleanLastValueIgnoreNullFunction
     @Override
     public Type getReturnType()
     {
-        return BOOLEAN;
+        return VARCHAR;
     }
 
     @Override
     public List<? extends Type> getArgumentTypes()
     {
-        return ImmutableList.<Type>of(BOOLEAN);
+        return ImmutableList.<Type>of(VARCHAR);
     }
 }

@@ -11,29 +11,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.facebook.presto.udfs.window;
+package com.facebook.presto.qubole.udfs.window;
 
 import com.facebook.presto.spi.type.Type;
-import com.facebook.presto.udfs.WindowFunctionDefinition;
+import com.facebook.presto.qubole.udfs.WindowFunctionDefinition;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 
 /**
  * Created by user on 13-03-2015.
  */
-public class VarcharFirstValueIgnoreNullFunction
+public class BooleanLastValueIgnoreNullFunction
         extends FirstOrLastValueIgnoreNullFunction
         implements WindowFunctionDefinition
 {
-    public VarcharFirstValueIgnoreNullFunction(List<Integer> argumentChannels)
+    public BooleanLastValueIgnoreNullFunction(List<Integer> argumentChannels)
     {
-        super(VARCHAR, argumentChannels, Direction.FIRST);
+        super(BOOLEAN, argumentChannels, Direction.LAST);
     }
 
-    public VarcharFirstValueIgnoreNullFunction()
+    public BooleanLastValueIgnoreNullFunction()
     {
         // Constructor is used by UdfFactory
         super();
@@ -42,18 +42,18 @@ public class VarcharFirstValueIgnoreNullFunction
     @Override
     public String getName()
     {
-        return "first_non_null_value";
+        return "last_non_null_value";
     }
 
     @Override
     public Type getReturnType()
     {
-        return VARCHAR;
+        return BOOLEAN;
     }
 
     @Override
     public List<? extends Type> getArgumentTypes()
     {
-        return ImmutableList.<Type>of(VARCHAR);
+        return ImmutableList.<Type>of(BOOLEAN);
     }
 }

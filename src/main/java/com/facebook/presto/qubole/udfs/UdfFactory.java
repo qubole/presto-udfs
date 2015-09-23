@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package com.facebook.presto.udfs;
+package com.facebook.presto.qubole.udfs;
 
 import com.facebook.presto.metadata.FunctionFactory;
 import com.facebook.presto.metadata.FunctionListBuilder;

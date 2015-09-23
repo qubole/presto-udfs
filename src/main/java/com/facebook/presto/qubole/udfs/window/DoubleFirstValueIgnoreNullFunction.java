@@ -11,10 +11,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.facebook.presto.udfs.window;
+package com.facebook.presto.qubole.udfs.window;
 
 import com.facebook.presto.spi.type.Type;
-import com.facebook.presto.udfs.WindowFunctionDefinition;
+import com.facebook.presto.qubole.udfs.WindowFunctionDefinition;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
