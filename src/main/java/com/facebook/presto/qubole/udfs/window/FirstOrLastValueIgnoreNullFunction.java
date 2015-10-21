@@ -53,12 +53,6 @@ public class FirstOrLastValueIgnoreNullFunction
     }
 
     @Override
-    public Type getType()
-    {
-        return type;
-    }
-
-    @Override
     public void processRow(BlockBuilder output, int frameStart, int frameEnd, int currentPosition)
     {
         // processRow is called for each row inside the frame => it will be costly to find non null last value everytime

@@ -10,7 +10,7 @@
         <artifactId>presto-root</artifactId>
 
         <!-- Replace this with whatever version of Presto you're using. -->
-        <version>0.105</version>
+        <version>0.119</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>

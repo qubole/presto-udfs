@@ -28,6 +28,7 @@ import com.facebook.presto.qubole.udfs.aggregation.state.ArrayAggregationStateFa
 import com.facebook.presto.qubole.udfs.aggregation.state.ArrayAggregationStateSerializer;
 import com.facebook.presto.spi.block.Block;
 import com.facebook.presto.spi.block.BlockBuilder;
+import com.facebook.presto.spi.block.BlockBuilderStatus;
 import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.spi.type.TypeManager;
 import com.facebook.presto.type.ArrayType;
@@ -47,6 +48,7 @@ import static com.facebook.presto.operator.aggregation.AggregationMetadata.Param
 import static com.facebook.presto.operator.aggregation.AggregationMetadata.ParameterMetadata.ParameterType.BLOCK_INPUT_CHANNEL;
 import static com.facebook.presto.operator.aggregation.AggregationMetadata.ParameterMetadata.ParameterType.STATE;
 import static com.facebook.presto.operator.aggregation.AggregationUtils.generateAggregationName;
+import static com.facebook.presto.type.TypeJsonUtils.appendToBlockBuilder;
 import static com.facebook.presto.type.TypeUtils.parameterizedTypeName;
 import static com.facebook.presto.util.Reflection.methodHandle;
 
@@ -182,8 +184,10 @@ public class ArrayAggregation
             Type type = state.getType();
             long entries = state.getEntries();
             List<Object> values = toValues(type, sliceInput, entries);
-            Slice s = ArrayType.toStackRepresentation(values, type);
-            out.writeBytes(s, 0, s.length());
+            Block block = arrayBlockOf(values, type);
+            out.writeObject(block);
+            /*Slice s = toStackRepresentation(values, type);
+            out.writeBytes(s, 0, s.length());*/
             out.closeEntry();
         }
     }
@@ -212,5 +216,14 @@ public class ArrayAggregation
             ret.add(o);
         }
         return ret;
+    }
+
+    public static Block arrayBlockOf(List<Object> values, Type elementType)
+    {
+        BlockBuilder blockBuilder = elementType.createBlockBuilder(new BlockBuilderStatus(), values.size());
+        for (Object value : values) {
+            appendToBlockBuilder(elementType, value, blockBuilder);
+        }
+        return blockBuilder.build();
     }
 }
