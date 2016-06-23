@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.facebook.presto.qubole.udfs.window;
+package com.qubole.presto.udfs.window;
 
 import com.facebook.presto.operator.window.ValueWindowFunction;
 import com.facebook.presto.spi.block.BlockBuilder;

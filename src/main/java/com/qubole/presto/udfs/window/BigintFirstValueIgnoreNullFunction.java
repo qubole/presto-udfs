@@ -11,29 +11,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.facebook.presto.qubole.udfs.window;
+package com.qubole.presto.udfs.window;
 
+import com.qubole.presto.udfs.WindowFunctionDefinition;
 import com.facebook.presto.spi.type.Type;
-import com.facebook.presto.qubole.udfs.WindowFunctionDefinition;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 
-import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
+import static com.facebook.presto.spi.type.BigintType.BIGINT;
 
 /**
  * Created by user on 13-03-2015.
  */
-public class VarcharFirstValueIgnoreNullFunction
+public class BigintFirstValueIgnoreNullFunction
         extends FirstOrLastValueIgnoreNullFunction
         implements WindowFunctionDefinition
 {
-    public VarcharFirstValueIgnoreNullFunction(List<Integer> argumentChannels)
+    public BigintFirstValueIgnoreNullFunction(List<Integer> argumentChannels)
     {
-        super(VARCHAR, argumentChannels, Direction.FIRST);
+        super(BIGINT, argumentChannels, Direction.FIRST);
     }
 
-    public VarcharFirstValueIgnoreNullFunction()
+    public BigintFirstValueIgnoreNullFunction()
     {
         // Constructor is used by UdfFactory
         super();
@@ -48,12 +48,12 @@ public class VarcharFirstValueIgnoreNullFunction
     @Override
     public Type getReturnType()
     {
-        return VARCHAR;
+        return BIGINT;
     }
 
     @Override
     public List<? extends Type> getArgumentTypes()
     {
-        return ImmutableList.<Type>of(VARCHAR);
+        return ImmutableList.<Type>of(BIGINT);
     }
 }

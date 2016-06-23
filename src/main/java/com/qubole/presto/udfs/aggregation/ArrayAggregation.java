@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.facebook.presto.qubole.udfs.aggregation;
+package com.qubole.presto.udfs.aggregation;
 
 import com.facebook.presto.byteCode.DynamicClassLoader;
 import com.facebook.presto.metadata.FunctionInfo;
@@ -23,9 +23,9 @@ import com.facebook.presto.operator.aggregation.AggregationMetadata;
 import com.facebook.presto.operator.aggregation.AggregationMetadata.ParameterMetadata;
 import com.facebook.presto.operator.aggregation.GenericAccumulatorFactoryBinder;
 import com.facebook.presto.operator.aggregation.InternalAggregationFunction;
-import com.facebook.presto.qubole.udfs.aggregation.state.ArrayAggregationState;
-import com.facebook.presto.qubole.udfs.aggregation.state.ArrayAggregationStateFactory;
-import com.facebook.presto.qubole.udfs.aggregation.state.ArrayAggregationStateSerializer;
+import com.qubole.presto.udfs.aggregation.state.ArrayAggregationState;
+import com.qubole.presto.udfs.aggregation.state.ArrayAggregationStateFactory;
+import com.qubole.presto.udfs.aggregation.state.ArrayAggregationStateSerializer;
 import com.facebook.presto.spi.block.Block;
 import com.facebook.presto.spi.block.BlockBuilder;
 import com.facebook.presto.spi.block.BlockBuilderStatus;

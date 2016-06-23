@@ -11,10 +11,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.facebook.presto.qubole.udfs.window;
+package com.qubole.presto.udfs.window;
 
 import com.facebook.presto.spi.type.Type;
-import com.facebook.presto.qubole.udfs.WindowFunctionDefinition;
+import com.qubole.presto.udfs.WindowFunctionDefinition;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
@@ -24,16 +24,16 @@ import static com.facebook.presto.spi.type.VarcharType.VARCHAR;
 /**
  * Created by user on 13-03-2015.
  */
-public class VarcharLastValueIgnoreNullFunction
+public class VarcharFirstValueIgnoreNullFunction
         extends FirstOrLastValueIgnoreNullFunction
         implements WindowFunctionDefinition
 {
-    public VarcharLastValueIgnoreNullFunction(List<Integer> argumentChannels)
+    public VarcharFirstValueIgnoreNullFunction(List<Integer> argumentChannels)
     {
-        super(VARCHAR, argumentChannels, Direction.LAST);
+        super(VARCHAR, argumentChannels, Direction.FIRST);
     }
 
-    public VarcharLastValueIgnoreNullFunction()
+    public VarcharFirstValueIgnoreNullFunction()
     {
         // Constructor is used by UdfFactory
         super();
@@ -42,7 +42,7 @@ public class VarcharLastValueIgnoreNullFunction
     @Override
     public String getName()
     {
-        return "last_non_null_value";
+        return "first_non_null_value";
     }
 
     @Override

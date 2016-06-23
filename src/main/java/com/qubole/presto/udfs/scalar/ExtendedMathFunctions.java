@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package com.facebook.presto.udfs.scalar;
+package com.qubole.presto.udfs.scalar;
 /*
 import com.facebook.presto.operator.Description;
 import com.facebook.presto.operator.scalar.ScalarFunction;
