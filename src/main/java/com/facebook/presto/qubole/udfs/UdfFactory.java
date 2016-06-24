@@ -74,7 +74,7 @@ public class UdfFactory implements FunctionFactory
                 }
             }
             else {
-                if (clazz.getName().startsWith("com.facebook.presto.udfs.scalar")) {
+                if (clazz.getName().startsWith("com.facebook.presto.qubole.udfs.scalar")) {
                     try {
                         builder.scalar(clazz);
                     }
