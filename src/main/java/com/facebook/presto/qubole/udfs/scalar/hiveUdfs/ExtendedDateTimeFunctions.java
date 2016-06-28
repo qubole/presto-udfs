@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.facebook.presto.qubole.udfs.scalar.hiveudf;
+package com.facebook.presto.qubole.udfs.scalar.hiveUdfs;
 
 import com.facebook.presto.operator.Description;
 import com.facebook.presto.operator.scalar.ScalarFunction;
@@ -22,18 +22,23 @@ import io.airlift.slice.Slice;
 import io.airlift.slice.Slices;
 
 import java.sql.Timestamp;
+import java.time.LocalTime;
 import java.time.MonthDay;
 import java.time.Year;
 import java.time.ZoneId;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.IsoFields;
 
+import static com.facebook.presto.operator.scalar.DateTimeFunctions.diffDate;
+import static com.facebook.presto.operator.scalar.DateTimeFunctions.diffTimestamp;
+import static com.facebook.presto.operator.scalar.DateTimeFunctions.diffTimestampWithTimeZone;
 import static com.facebook.presto.operator.scalar.DateTimeFunctions.formatDatetime;
 import static com.facebook.presto.operator.scalar.DateTimeFunctions.timeZoneHourFromTimestampWithTimeZone;
 import static com.facebook.presto.operator.scalar.DateTimeFunctions.timeZoneMinuteFromTimestampWithTimeZone;
 import static com.facebook.presto.operator.scalar.DateTimeFunctions.addFieldValueDate;
 import static com.facebook.presto.operator.scalar.DateTimeFunctions.toISO8601FromDate;
-import static com.facebook.presto.operator.scalar.DateTimeFunctions.fromISO8601Date;
+import static com.facebook.presto.operator.scalar.DateTimeFunctions.weekFromTimestamp;
 import static com.facebook.presto.spi.type.DateTimeEncoding.packDateTimeWithZone;
 import static io.airlift.slice.Slices.utf8Slice;
 
@@ -135,9 +140,10 @@ public class ExtendedDateTimeFunctions
     @SqlType(StandardTypes.VARCHAR)
     public static Slice dateSubString(ConnectorSession session, @SqlType(StandardTypes.VARCHAR) Slice inputDate, @SqlType(StandardTypes.BIGINT) long value)
     {
-        long date = fromISO8601Date(session, inputDate);
-        date = addFieldValueDate(session, Slices.utf8Slice("day"), -value, date);
-        return toISO8601FromDate(session, date);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd[ HH:mm:ss[.SSS]]");
+        LocalDate date = LocalDate.parse(inputDate.toStringUtf8(), formatter);
+        date = LocalDate.ofEpochDay(date.toEpochDay() - value);
+        return utf8Slice(date.toString());
     }
 
     @Description("year of the given string timestamp")
@@ -152,18 +158,107 @@ public class ExtendedDateTimeFunctions
     @Description("month of the year of the given string timestamp")
     @ScalarFunction("month")
     @SqlType(StandardTypes.BIGINT)
-    public static long monthFromTimestamp(ConnectorSession session, @SqlType(StandardTypes.VARCHAR) Slice inputTimestamp)
+    public static long monthFromStringTimestamp(@SqlType(StandardTypes.VARCHAR) Slice inputTimestamp)
     {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd[ HH:mm:ss[.SSS]]");
         return MonthDay.parse(inputTimestamp.toStringUtf8(), formatter).getMonthValue();
     }
 
-    @Description("day of the year of the given string timestamp")
-    @ScalarFunction("day")
+    @Description("week of the year of the given string timestamp")
+    @ScalarFunction("weekofyear")
     @SqlType(StandardTypes.BIGINT)
-    public static long dayFromTimestamp(ConnectorSession session, @SqlType(StandardTypes.VARCHAR) Slice inputTimestamp)
+    public static long weekOfYearFromStringTimestamp(@SqlType(StandardTypes.VARCHAR) Slice inputTimestamp)
+    {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd[ HH:mm:ss[.SSS]]");
+        LocalDate date = LocalDate.parse(inputTimestamp.toStringUtf8(), formatter);
+        return date.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);
+    }
+
+    @Description("week of the year of the given string timestamp")
+    @ScalarFunction("weekofyear")
+    @SqlType(StandardTypes.BIGINT)
+    public static long weekOfYearFromTimestamp(ConnectorSession session, @SqlType(StandardTypes.TIMESTAMP) long timestamp)
+    {
+        return weekFromTimestamp(session, timestamp);
+    }
+
+    @Description("week of the year of the given string timestamp")
+    @ScalarFunction("weekofyear")
+    @SqlType(StandardTypes.BIGINT)
+    public static long weekOfYearFromTimestampWithTimeZone(ConnectorSession session, @SqlType(StandardTypes.TIMESTAMP_WITH_TIME_ZONE) long timestamp)
+    {
+        // Right shifting 6 bits, converts a timestamp with timezone to timestamp.
+        return weekFromTimestamp(session, timestamp >> 6);
+    }
+
+    @Description("day of the year of the given string timestamp")
+    @ScalarFunction(value = "day", alias = "dayofmonth")
+    @SqlType(StandardTypes.BIGINT)
+    public static long dayFromTimestamp(@SqlType(StandardTypes.VARCHAR) Slice inputTimestamp)
     {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd[ HH:mm:ss[.SSS]]");
         return MonthDay.parse(inputTimestamp.toStringUtf8(), formatter).getDayOfMonth();
+    }
+
+    @Description("day of the year of the given string timestamp")
+    @ScalarFunction("hour")
+    @SqlType(StandardTypes.BIGINT)
+    public static long hourFromTimestamp(@SqlType(StandardTypes.VARCHAR) Slice inputTimestamp)
+    {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("[yyyy-MM-dd ]HH:mm:ss[.SSS]");
+        return LocalTime.parse(inputTimestamp.toStringUtf8(), formatter).getHour();
+    }
+
+    @Description("day of the year of the given string timestamp")
+    @ScalarFunction("minute")
+    @SqlType(StandardTypes.BIGINT)
+    public static long minuteFromTimestamp(@SqlType(StandardTypes.VARCHAR) Slice inputTimestamp)
+    {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("[yyyy-MM-dd ]HH:mm:ss[.SSS]");
+        return LocalTime.parse(inputTimestamp.toStringUtf8(), formatter).getMinute();
+    }
+
+    @Description("day of the year of the given string timestamp")
+    @ScalarFunction("second")
+    @SqlType(StandardTypes.BIGINT)
+    public static long secondFromTimestamp(@SqlType(StandardTypes.VARCHAR) Slice inputTimestamp)
+    {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("[yyyy-MM-dd ]HH:mm:ss[.SSS]");
+        return LocalTime.parse(inputTimestamp.toStringUtf8(), formatter).getSecond();
+    }
+
+    @Description("difference of the given dates (String) in days")
+    @ScalarFunction("datediff")
+    @SqlType(StandardTypes.BIGINT)
+    public static long diffStringDateInDays(@SqlType(StandardTypes.VARCHAR) Slice inputDate1, @SqlType(StandardTypes.VARCHAR) Slice inputDate2)
+    {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd[ HH:mm:ss[.SSS]]");
+        LocalDate date1 = LocalDate.parse(inputDate1.toStringUtf8(), formatter);
+        LocalDate date2 = LocalDate.parse(inputDate2.toStringUtf8(), formatter);
+        return date1.toEpochDay() - date2.toEpochDay();
+    }
+
+    @Description("difference of the given dates in days")
+    @ScalarFunction("datediff")
+    @SqlType(StandardTypes.BIGINT)
+    public static long diffDateInDays(ConnectorSession session, @SqlType(StandardTypes.DATE) long date1, @SqlType(StandardTypes.DATE) long date2)
+    {
+        return diffDate(session, utf8Slice("day"), date2, date1);
+    }
+
+    @Description("difference of the given dates (Timestamps) in days")
+    @ScalarFunction("datediff")
+    @SqlType(StandardTypes.BIGINT)
+    public static long diffTimestampDateInDays(ConnectorSession session, @SqlType(StandardTypes.TIMESTAMP) long timestamp1, @SqlType(StandardTypes.TIMESTAMP) long timestamp2)
+    {
+        return diffTimestamp(session, utf8Slice("day"), timestamp2, timestamp1);
+    }
+
+    @Description("difference of the given dates (Timestamps) in days")
+    @ScalarFunction("datediff")
+    @SqlType(StandardTypes.BIGINT)
+    public static long diffTimestampWithTimezoneDateInDays(@SqlType(StandardTypes.TIMESTAMP_WITH_TIME_ZONE) long timestamp1, @SqlType(StandardTypes.TIMESTAMP_WITH_TIME_ZONE) long timestamp2)
+    {
+        return diffTimestampWithTimeZone(utf8Slice("day"), timestamp2, timestamp1);
     }
 }
