@@ -28,6 +28,7 @@
         <guava.version>18.0</guava.version>
         <javax.inject.version>1</javax.inject.version>
         <io.airlift.log.version>0.125</io.airlift.log.version>
+        <jodatime.version>2.8.1</jodatime.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
@@ -77,7 +78,7 @@
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
-            <scope>provided</scope>
+            <version>${jodatime.version}</version>
         </dependency>
     </dependencies>
 </project>
