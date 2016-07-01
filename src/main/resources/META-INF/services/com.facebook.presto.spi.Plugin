@@ -1,1 +1,1 @@
-com.facebook.presto.qubole.udfs.UdfPlugin
+com.qubole.presto.udfs.UdfPlugin

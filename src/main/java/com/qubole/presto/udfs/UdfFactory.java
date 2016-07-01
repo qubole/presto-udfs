@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package com.facebook.presto.qubole.udfs;
+package com.qubole.presto.udfs;
 
 import com.facebook.presto.metadata.FunctionFactory;
 import com.facebook.presto.metadata.FunctionListBuilder;
@@ -74,7 +74,7 @@ public class UdfFactory implements FunctionFactory
                 }
             }
             else {
-                if (clazz.getName().startsWith("com.facebook.presto.qubole.udfs.scalar")) {
+                if (clazz.getName().startsWith("com.qubole.presto.udfs.scalar")) {
                     try {
                         builder.scalar(clazz);
                     }
@@ -87,7 +87,7 @@ public class UdfFactory implements FunctionFactory
                         }
                     }
                 }
-                else if (clazz.getName().startsWith("com.facebook.presto.udfs.aggregation")) {
+                else if (clazz.getName().startsWith("com.qubole.presto.udfs.aggregation")) {
                     AggregationFunction aggregationAnnotation = clazz.getAnnotation(AggregationFunction.class);
                     if (aggregationAnnotation == null) {
                         continue;
@@ -99,7 +99,7 @@ public class UdfFactory implements FunctionFactory
                         log.info(String.format("Could not add %s, exception: %s, stack: %s", clazz.getName(), e, e.getStackTrace()));
                     }
                 }
-                else if (clazz.getName().startsWith("com.facebook.presto.udfs.window")) {
+                else if (clazz.getName().startsWith("com.qubole.presto.udfs.window")) {
                     if (WindowFunctionDefinition.class.isAssignableFrom(clazz)) {
                         try {
                             WindowFunctionDefinition def = (WindowFunctionDefinition) clazz.newInstance();

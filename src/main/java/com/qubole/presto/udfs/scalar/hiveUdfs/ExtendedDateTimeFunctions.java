@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.facebook.presto.qubole.udfs.scalar.hiveUdfs;
+package com.qubole.presto.udfs.scalar.hiveUdfs;
 
 import com.facebook.presto.operator.Description;
 import com.facebook.presto.operator.scalar.ScalarFunction;
@@ -109,7 +109,7 @@ public class ExtendedDateTimeFunctions
     {
           return formatDatetime(session, timestamp, Slices.utf8Slice("yyyy-MM-dd"));
     }
-
+/*
     @Description("Returns the date part of the timestamp with time zone")
     @ScalarFunction("to_date")
     @SqlType(StandardTypes.VARCHAR)
@@ -119,7 +119,8 @@ public class ExtendedDateTimeFunctions
         long offset = ((timeZoneHourFromTimestampWithTimeZone(timestamp) * 60 + timeZoneMinuteFromTimestampWithTimeZone(timestamp)) * 60) * 1000;
         return formatDatetime(session, ((long) toUnixTimeFromTimestampWithTimeZone(timestamp) * 1000) + offset , Slices.utf8Slice("yyyy-MM-dd"));
     }
-
+*/
+    
     @Description("Gets current UNIX timestamp in seconds")
     @ScalarFunction("unix_timestamp")
     @SqlType(StandardTypes.BIGINT)

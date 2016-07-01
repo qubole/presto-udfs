@@ -11,29 +11,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.facebook.presto.qubole.udfs.window;
+package com.qubole.presto.udfs.window;
 
 import com.facebook.presto.spi.type.Type;
-import com.facebook.presto.qubole.udfs.WindowFunctionDefinition;
+import com.qubole.presto.udfs.WindowFunctionDefinition;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 
-import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
+import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
 
 /**
  * Created by user on 13-03-2015.
  */
-public class DoubleFirstValueIgnoreNullFunction
+public class BooleanLastValueIgnoreNullFunction
         extends FirstOrLastValueIgnoreNullFunction
         implements WindowFunctionDefinition
 {
-    public DoubleFirstValueIgnoreNullFunction(List<Integer> argumentChannels)
+    public BooleanLastValueIgnoreNullFunction(List<Integer> argumentChannels)
     {
-        super(DOUBLE, argumentChannels, Direction.FIRST);
+        super(BOOLEAN, argumentChannels, Direction.LAST);
     }
 
-    public DoubleFirstValueIgnoreNullFunction()
+    public BooleanLastValueIgnoreNullFunction()
     {
         // Constructor is used by UdfFactory
         super();
@@ -42,18 +42,18 @@ public class DoubleFirstValueIgnoreNullFunction
     @Override
     public String getName()
     {
-        return "first_non_null_value";
+        return "last_non_null_value";
     }
 
     @Override
     public Type getReturnType()
     {
-        return DOUBLE;
+        return BOOLEAN;
     }
 
     @Override
     public List<? extends Type> getArgumentTypes()
     {
-        return ImmutableList.<Type>of(DOUBLE);
+        return ImmutableList.<Type>of(BOOLEAN);
     }
 }

@@ -2,16 +2,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <groupId>com.facebook.presto</groupId>
-        <!-- Parent should be presto-root if this is a subdirectory of presto.  If this is a subdirectory
-             of your own project, then set it correspondingly.
-        -->
-        <artifactId>presto-root</artifactId>
-
-        <!-- Replace this with whatever version of Presto you're using. -->
-        <version>0.119</version>
-    </parent>
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -26,61 +16,69 @@
          take care of packinging up the above file.  I could not get that to work, so I just relied on
          the Maven resource packager to explicitly copy the file instead.
     -->
-    <packaging>presto-plugin</packaging>
 
+    <properties>
     <!-- Uncomment this if you're placing this as a subdirectory of presto and you want to run their style
          checker.  Otherwise, you can get rid of it. -->
     <!--
-    <properties>
         <air.main.basedir>${project.parent.basedir}</air.main.basedir>
-    </properties>
     -->
+        <presto.version>0.119</presto.version>
+        <slice.version>0.15</slice.version>
+        <guava.version>18.0</guava.version>
+        <javax.inject.version>1</javax.inject.version>
+        <io.airlift.log.version>0.125</io.airlift.log.version>
+        <jodatime.version>2.8.1</jodatime.version>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
 
-    <artifactId>presto-udfs</artifactId>
-    <name>presto-udfs</name>
+    <groupId>com.qubole.presto</groupId>
+    <artifactId>udfs</artifactId>
+    <name>udfs</name>
+    <version>0.1.0-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
             <groupId>com.facebook.presto</groupId>
             <artifactId>presto-spi</artifactId>
-            <scope>provided</scope>
+            <version>${presto.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.facebook.presto</groupId>
             <artifactId>presto-main</artifactId>
-            <scope>provided</scope>
+            <version>${presto.version}</version>
         </dependency>
 
         <dependency>
             <groupId>io.airlift</groupId>
             <artifactId>slice</artifactId>
-            <scope>provided</scope>
+            <version>${slice.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <scope>provided</scope>
+            <version>${guava.version}</version>
         </dependency>
 
         <dependency>
             <groupId>javax.inject</groupId>
             <artifactId>javax.inject</artifactId>
-            <scope>provided</scope>
+            <version>${javax.inject.version}</version>
         </dependency>
 
         <dependency>
             <groupId>io.airlift</groupId>
             <artifactId>log</artifactId>
-            <scope>provided</scope>
+            <version>${io.airlift.log.version}</version>
         </dependency>
 
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
-            <scope>provided</scope>
+            <version>${jodatime.version}</version>
         </dependency>
     </dependencies>
-
 </project>
