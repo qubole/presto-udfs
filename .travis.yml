@@ -3,3 +3,5 @@ branches:
     - master
 language: java
 sudo: false
+jdk:
+  - oraclejdk8
