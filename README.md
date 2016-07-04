@@ -21,19 +21,9 @@ Release a new version of presto-udfs
 Releases are always created from `master`. During development, `master` 
 has a version like `X.Y.Z-SNAPSHOT`. 
  
-To create a release, the version has to be changed, compile, deploy and 
-bump the development version.
- 
     # Change version as per http://semver.org/
-    mvn versions:set -DnewVersion=X.Y.Z -DgenerateBackupPoms=false
-    git commit -m "Prepare release X.Y.Z" -a
-    git tag -a X.Y.Z -a "A useful comment here"
+    mvn release:prepare -Prelease
+    mvn release:perform -Prelease
     git push
     git push --tags
-    # SSH to build machine if required
-    #Deploy to Maven Central
-    mvn deploy -P release
-    #Set new development version.
-    mvn versions:set -DnewVersion=X.Y.(Z+1)-SNAPSHOT -DgenerateBackupPoms=false
-    git commit -m "Set Development Version to X.Y.(Z+1)" -a
- 
+

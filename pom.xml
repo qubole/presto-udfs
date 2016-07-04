@@ -54,6 +54,11 @@
                 </execution>
             </executions>
         </plugin>
+           <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-release-plugin</artifactId>
+               <version>2.5.1</version>
+           </plugin>
       </plugins>
     </build>
 
@@ -69,7 +74,7 @@
         <connection>scm:git:git://github.com/qubole/presto-udfs.git</connection>
         <developerConnection>scm:git:git@github.com:qubole/presto-udfs.git</developerConnection>
       <tag>HEAD</tag>
-  </scm>
+    </scm>
 
     <licenses>
         <license>
@@ -133,16 +138,6 @@
             <version>${jodatime.version}</version>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>2.5.1</version>
-            </plugin>
-        </plugins>
-    </build>
 
     <profiles>
         <profile>
