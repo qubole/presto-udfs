@@ -35,6 +35,8 @@
     <artifactId>udfs</artifactId>
     <version>0.1.2-SNAPSHOT</version>
     <name>PrestoUDFs</name>
+    <url>https://github.com/qubole/presto-udfs</url>
+    <description>Common Functions for the Facebook Presto SQL Engine</description>
 
     <scm>
         <url>https://github.com/qubole/presto-udfs</url>
