@@ -38,6 +38,7 @@ import static com.facebook.presto.operator.scalar.DateTimeFunctions.timeZoneHour
 import static com.facebook.presto.operator.scalar.DateTimeFunctions.timeZoneMinuteFromTimestampWithTimeZone;
 import static com.facebook.presto.operator.scalar.DateTimeFunctions.addFieldValueDate;
 import static com.facebook.presto.operator.scalar.DateTimeFunctions.toISO8601FromDate;
+import static com.facebook.presto.operator.scalar.DateTimeFunctions.toUnixTimeFromTimestampWithTimeZone;
 import static com.facebook.presto.operator.scalar.DateTimeFunctions.weekFromTimestamp;
 import static com.facebook.presto.operator.scalar.DateTimeFunctions.weekFromTimestampWithTimeZone;
 import static com.facebook.presto.spi.type.DateTimeEncoding.packDateTimeWithZone;
@@ -109,7 +110,7 @@ public class ExtendedDateTimeFunctions
     {
           return formatDatetime(session, timestamp, Slices.utf8Slice("yyyy-MM-dd"));
     }
-/*
+
     @Description("Returns the date part of the timestamp with time zone")
     @ScalarFunction("to_date")
     @SqlType(StandardTypes.VARCHAR)
@@ -117,10 +118,9 @@ public class ExtendedDateTimeFunctions
     {
         // Offset is added to the unix timestamp to incorporate the affect of Timezone.
         long offset = ((timeZoneHourFromTimestampWithTimeZone(timestamp) * 60 + timeZoneMinuteFromTimestampWithTimeZone(timestamp)) * 60) * 1000;
-        return formatDatetime(session, ((long) toUnixTimeFromTimestampWithTimeZone(timestamp) * 1000) + offset , Slices.utf8Slice("yyyy-MM-dd"));
+        return formatDatetime(session, ((long) toUnixTimeFromTimestampWithTimeZone(timestamp) * 1000) + offset, Slices.utf8Slice("yyyy-MM-dd"));
     }
-*/
-    
+
     @Description("Gets current UNIX timestamp in seconds")
     @ScalarFunction("unix_timestamp")
     @SqlType(StandardTypes.BIGINT)
@@ -141,11 +141,31 @@ public class ExtendedDateTimeFunctions
     @Description("Subtract number of days to the given string date")
     @ScalarFunction("date_sub")
     @SqlType(StandardTypes.VARCHAR)
-    public static Slice dateSubString(ConnectorSession session, @SqlType(StandardTypes.VARCHAR) Slice inputDate, @SqlType(StandardTypes.BIGINT) long value)
+    public static Slice stringDateSub(ConnectorSession session, @SqlType(StandardTypes.VARCHAR) Slice inputDate, @SqlType(StandardTypes.BIGINT) long value)
     {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd[ HH:mm:ss[.SSS]]");
         LocalDate date = LocalDate.parse(inputDate.toStringUtf8(), formatter);
         date = LocalDate.ofEpochDay(date.toEpochDay() - value);
+        return utf8Slice(date.toString());
+    }
+
+    @Description("Add number of days to the given date")
+    @ScalarFunction("date_add")
+    @SqlType(StandardTypes.VARCHAR)
+    public static Slice dateAdd(ConnectorSession session, @SqlType(StandardTypes.DATE) long date, @SqlType(StandardTypes.BIGINT) long value)
+    {
+        date = addFieldValueDate(session, Slices.utf8Slice("day"), value, date);
+        return toISO8601FromDate(session, date);
+    }
+
+    @Description("Add number of days to the given string date")
+    @ScalarFunction("date_add")
+    @SqlType(StandardTypes.VARCHAR)
+    public static Slice StringDateAdd(ConnectorSession session, @SqlType(StandardTypes.VARCHAR) Slice inputDate, @SqlType(StandardTypes.BIGINT) long value)
+    {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd[ HH:mm:ss[.SSS]]");
+        LocalDate date = LocalDate.parse(inputDate.toStringUtf8(), formatter);
+        date = LocalDate.ofEpochDay(date.toEpochDay() + value);
         return utf8Slice(date.toString());
     }
 
