@@ -59,14 +59,14 @@
 
     <groupId>com.qubole.presto</groupId>
     <artifactId>udfs</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.1-SNAPSHOT</version>
     <name>PrestoUDFs</name>
 
     <scm>
         <url>https://github.com/qubole/presto-udfs</url>
         <connection>scm:git:git://github.com/qubole/presto-udfs.git</connection>
         <developerConnection>scm:git:git@github.com:qubole/presto-udfs.git</developerConnection>
-      <tag>udfs-0.1.0</tag>
+      <tag>HEAD</tag>
   </scm>
 
     <licenses>
