@@ -21,7 +21,7 @@
     <!--
         <air.main.basedir>${project.parent.basedir}</air.main.basedir>
     -->
-        <presto.version>0.119</presto.version>
+        <presto.version>0.142</presto.version>
         <slice.version>0.15</slice.version>
         <guava.version>18.0</guava.version>
         <javax.inject.version>1</javax.inject.version>

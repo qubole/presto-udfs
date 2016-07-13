@@ -1,4 +1,6 @@
 /*
+ * Copyright 2013-2016 Qubole
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.qubole.presto.udfs;
 
 import com.facebook.presto.metadata.FunctionFactory;
 import com.facebook.presto.metadata.FunctionListBuilder;
-import com.facebook.presto.metadata.ParametricFunction;
-import com.facebook.presto.metadata.ParametricAggregation;
+import com.facebook.presto.metadata.SqlAggregationFunction;
+import com.facebook.presto.metadata.SqlFunction;
 import com.facebook.presto.operator.aggregation.AggregationFunction;
 import com.facebook.presto.operator.window.WindowFunction;
 import com.facebook.presto.spi.type.TypeManager;
@@ -46,7 +47,7 @@ public class UdfFactory implements FunctionFactory
         this.typeManager = tm;
     }
     @Override
-    public List<ParametricFunction> listFunctions()
+    public List<SqlFunction> listFunctions()
     {
         FunctionListBuilder builder = new FunctionListBuilder(typeManager);
         try {
@@ -65,9 +66,9 @@ public class UdfFactory implements FunctionFactory
     {
         for (Class<?> clazz : classes) {
             log.info("Adding: " + clazz);
-            if (ParametricAggregation.class.isAssignableFrom(clazz)) {
+            if (SqlAggregationFunction.class.isAssignableFrom(clazz)) {
                 try {
-                    builder.function((ParametricAggregation) clazz.newInstance());
+                    builder.function((SqlAggregationFunction) clazz.newInstance());
                 }
                 catch (InstantiationException | IllegalAccessException e) {
                     log.info(String.format("Could not add %s, exception: %s, stack: %s", clazz.getName(), e, e.getStackTrace()));

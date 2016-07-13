@@ -1,4 +1,6 @@
 /*
+ * Copyright 2013-2016 Qubole
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -29,7 +31,7 @@ public class ExtendedMathematicFunctions
     private ExtendedMathematicFunctions() {}
 
     @Description("a seed pseudo-random value")
-    @ScalarFunction(value = "random", alias = "rand")
+    @ScalarFunction("rands")
     @SqlType(StandardTypes.DOUBLE)
     public static double randomWithSeed(@SqlType(StandardTypes.BIGINT) long seed)
     {

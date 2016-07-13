@@ -1,4 +1,6 @@
 /*
+ * Copyright 2013-2016 Qubole
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,11 +15,9 @@
  */
 package com.qubole.presto.udfs.aggregation;
 
-import com.facebook.presto.byteCode.DynamicClassLoader;
-import com.facebook.presto.metadata.FunctionInfo;
+import com.facebook.presto.bytecode.DynamicClassLoader;
 import com.facebook.presto.metadata.FunctionRegistry;
-import com.facebook.presto.metadata.ParametricAggregation;
-import com.facebook.presto.metadata.Signature;
+import com.facebook.presto.metadata.SqlAggregationFunction;
 import com.facebook.presto.operator.aggregation.AccumulatorCompiler;
 import com.facebook.presto.operator.aggregation.AggregationMetadata;
 import com.facebook.presto.operator.aggregation.AggregationMetadata.ParameterMetadata;
@@ -49,23 +49,20 @@ import static com.facebook.presto.operator.aggregation.AggregationMetadata.Param
 import static com.facebook.presto.operator.aggregation.AggregationMetadata.ParameterMetadata.ParameterType.STATE;
 import static com.facebook.presto.operator.aggregation.AggregationUtils.generateAggregationName;
 import static com.facebook.presto.type.TypeJsonUtils.appendToBlockBuilder;
-import static com.facebook.presto.type.TypeUtils.parameterizedTypeName;
 import static com.facebook.presto.util.Reflection.methodHandle;
 
 public class ArrayAggregation
-        extends ParametricAggregation
+        extends SqlAggregationFunction
 {
     public static final ArrayAggregation ARRAY_AGGREGATION = new ArrayAggregation();
     private static final String NAME = "array_aggr";
     private static final MethodHandle INPUT_FUNCTION = methodHandle(ArrayAggregation.class, "input", Type.class, ArrayAggregationState.class, Block.class, int.class);
     private static final MethodHandle COMBINE_FUNCTION = methodHandle(ArrayAggregation.class, "combine", Type.class, ArrayAggregationState.class, ArrayAggregationState.class);
     private static final MethodHandle OUTPUT_FUNCTION = methodHandle(ArrayAggregation.class, "output", ArrayAggregationState.class, BlockBuilder.class);
-    private static final Signature SIGNATURE = new Signature(NAME, ImmutableList.of(typeParameter("T")), "array<T>", ImmutableList.of("T"), false, false);
 
-    @Override
-    public Signature getSignature()
+    public ArrayAggregation()
     {
-        return SIGNATURE;
+        super(NAME, ImmutableList.of(typeParameter("T")), "array(T)", ImmutableList.of("T"));
     }
 
     @Override
@@ -75,14 +72,10 @@ public class ArrayAggregation
     }
 
     @Override
-    public FunctionInfo specialize(Map<String, Type> types, int arity, TypeManager typeManager, FunctionRegistry functionRegistry)
+    public InternalAggregationFunction specialize(Map<String, Type> types, int arity, TypeManager typeManager, FunctionRegistry functionRegistry)
     {
         Type valueType = types.get("T");
-        Signature signature = new Signature(NAME,
-                parameterizedTypeName("array", valueType.getTypeSignature()),
-                valueType.getTypeSignature());
-        InternalAggregationFunction aggregation = generateAggregation(valueType);
-        return new FunctionInfo(signature, getDescription(), aggregation);
+        return generateAggregation(valueType);
     }
 
     private static InternalAggregationFunction generateAggregation(Type valueType)
