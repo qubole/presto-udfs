@@ -88,4 +88,18 @@ public class ExtendedStringFunctions
         }
         return 0;
     }
+
+    @Description("returns index of first occurrence of a substring (or 0 if not found) in string")
+    @ScalarFunction("instr")
+    @SqlType(StandardTypes.BIGINT)
+    public static long inString(@SqlType(StandardTypes.VARCHAR) Slice string, @SqlType(StandardTypes.VARCHAR) Slice substring)
+    {
+        if (substring.length() == 0) {
+            return 1;
+        }
+        if (string.length() == 0) {
+            return 0;
+        }
+        return stringPosition(string, substring);
+    }
 }
