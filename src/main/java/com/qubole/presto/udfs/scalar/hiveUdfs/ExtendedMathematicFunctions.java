@@ -22,6 +22,10 @@ import com.facebook.presto.operator.Description;
 import com.facebook.presto.operator.scalar.ScalarFunction;
 import com.facebook.presto.spi.type.StandardTypes;
 import com.facebook.presto.type.SqlType;
+import io.airlift.slice.Slice;
+import io.airlift.slice.Slices;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Created by apoorvg on 6/29/16.
@@ -66,6 +70,74 @@ public class ExtendedMathematicFunctions
         }
         else {
             return (a % b) + b;
+        }
+    }
+
+    @Description("Converts decimal number to binary")
+    @ScalarFunction("bin")
+    @SqlType(StandardTypes.VARCHAR)
+    public static Slice integerToBin(@SqlType(StandardTypes.BIGINT) long num)
+    {
+        String bin = Long.toBinaryString(num);
+        return Slices.copiedBuffer(bin, UTF_8);
+    }
+
+    @Description("Converts integer number to hex value")
+    @ScalarFunction("hex")
+    @SqlType(StandardTypes.VARCHAR)
+    public static Slice integerToHex(@SqlType(StandardTypes.BIGINT) long num)
+    {
+        String hex = Long.toHexString(num);
+        return Slices.copiedBuffer(hex, UTF_8);
+    }
+
+    @Nullable
+    @Description("Converts string number to hex value")
+    @ScalarFunction("hex")
+    @SqlType(StandardTypes.VARCHAR)
+    public static Slice stringIntegerToHex(@SqlType(StandardTypes.VARCHAR) Slice inputNum)
+    {
+        try {
+            Long num = Long.parseLong(inputNum.toStringUtf8(), 10);
+            String hex = Long.toHexString(num);
+            return Slices.copiedBuffer(hex, UTF_8);
+        }
+        catch (NumberFormatException e) {
+            // Return NULL if invalid input
+            return null;
+        }
+    }
+
+    @Nullable
+    @Description("Converts binary to hex value")
+    @ScalarFunction("hex")
+    @SqlType(StandardTypes.VARCHAR)
+    public static Slice BinaryrToHex(@SqlType(StandardTypes.VARBINARY) Slice inputNum)
+    {
+        try {
+            Long num = Long.parseLong(inputNum.toStringUtf8(), 2);
+            String hex = Long.toHexString(num);
+            return Slices.copiedBuffer(hex, UTF_8);
+        }
+        catch (NumberFormatException e) {
+            // Return NULL if invalid input
+            return null;
+        }
+    }
+
+    @Nullable
+    @Description("Converts Hexadecimal number to binary value")
+    @ScalarFunction("unhex")
+    @SqlType(StandardTypes.VARBINARY)
+    public static Slice hexToInteger(@SqlType(StandardTypes.VARCHAR) Slice inputHex)
+    {
+        try {
+            Long num = Long.parseLong(inputHex.toStringUtf8(), 16);
+            return Slices.copiedBuffer(Long.toBinaryString(num), UTF_8);
+        }
+        catch (NumberFormatException e) {
+            // Return NULL if invalid input
+            return null;
         }
     }
 }

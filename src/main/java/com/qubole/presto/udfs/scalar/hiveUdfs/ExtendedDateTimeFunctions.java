@@ -24,21 +24,24 @@ import io.airlift.slice.Slice;
 import io.airlift.slice.Slices;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.MonthDay;
 import java.time.Year;
 import java.time.ZoneId;
-import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.IsoFields;
 
+import static com.facebook.presto.operator.scalar.DateTimeFunctions.addFieldValueDate;
 import static com.facebook.presto.operator.scalar.DateTimeFunctions.diffDate;
 import static com.facebook.presto.operator.scalar.DateTimeFunctions.diffTimestamp;
 import static com.facebook.presto.operator.scalar.DateTimeFunctions.diffTimestampWithTimeZone;
 import static com.facebook.presto.operator.scalar.DateTimeFunctions.formatDatetime;
 import static com.facebook.presto.operator.scalar.DateTimeFunctions.timeZoneHourFromTimestampWithTimeZone;
 import static com.facebook.presto.operator.scalar.DateTimeFunctions.timeZoneMinuteFromTimestampWithTimeZone;
-import static com.facebook.presto.operator.scalar.DateTimeFunctions.addFieldValueDate;
 import static com.facebook.presto.operator.scalar.DateTimeFunctions.toISO8601FromDate;
 import static com.facebook.presto.operator.scalar.DateTimeFunctions.toUnixTimeFromTimestampWithTimeZone;
 import static com.facebook.presto.operator.scalar.DateTimeFunctions.weekFromTimestamp;
@@ -100,7 +103,7 @@ public class ExtendedDateTimeFunctions
     @SqlType(StandardTypes.VARCHAR)
     public static Slice stringTimestampToDate(@SqlType(StandardTypes.VARCHAR) Slice inputTimestamp)
     {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd[ HH:mm:ss[.SSS]]");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd[ HH:mm:ss[.SSS]][ zzz]");
         LocalDate date = LocalDate.parse(inputTimestamp.toStringUtf8(), formatter);
         return utf8Slice(date.toString());
     }
@@ -145,7 +148,7 @@ public class ExtendedDateTimeFunctions
     @SqlType(StandardTypes.VARCHAR)
     public static Slice stringDateSub(ConnectorSession session, @SqlType(StandardTypes.VARCHAR) Slice inputDate, @SqlType(StandardTypes.BIGINT) long value)
     {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd[ HH:mm:ss[.SSS]]");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd[ HH:mm:ss[.SSS]][ zzz]");
         LocalDate date = LocalDate.parse(inputDate.toStringUtf8(), formatter);
         date = LocalDate.ofEpochDay(date.toEpochDay() - value);
         return utf8Slice(date.toString());
@@ -165,7 +168,7 @@ public class ExtendedDateTimeFunctions
     @SqlType(StandardTypes.VARCHAR)
     public static Slice StringDateAdd(ConnectorSession session, @SqlType(StandardTypes.VARCHAR) Slice inputDate, @SqlType(StandardTypes.BIGINT) long value)
     {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd[ HH:mm:ss[.SSS]]");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd[ HH:mm:ss[.SSS]][ zzz]");
         LocalDate date = LocalDate.parse(inputDate.toStringUtf8(), formatter);
         date = LocalDate.ofEpochDay(date.toEpochDay() + value);
         return utf8Slice(date.toString());
@@ -176,7 +179,7 @@ public class ExtendedDateTimeFunctions
     @SqlType(StandardTypes.BIGINT)
     public static long yearFromStringTimestamp(@SqlType(StandardTypes.VARCHAR) Slice inputTimestamp)
     {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd[ HH:mm:ss[.SSS]]");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd[ HH:mm:ss[.SSS]][ zzz]");
         return Year.parse(inputTimestamp.toStringUtf8(), formatter).getValue();
     }
 
@@ -185,7 +188,7 @@ public class ExtendedDateTimeFunctions
     @SqlType(StandardTypes.BIGINT)
     public static long monthFromStringTimestamp(@SqlType(StandardTypes.VARCHAR) Slice inputTimestamp)
     {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd[ HH:mm:ss[.SSS]]");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd[ HH:mm:ss[.SSS]][ zzz]");
         return MonthDay.parse(inputTimestamp.toStringUtf8(), formatter).getMonthValue();
     }
 
@@ -194,7 +197,7 @@ public class ExtendedDateTimeFunctions
     @SqlType(StandardTypes.BIGINT)
     public static long weekOfYearFromStringTimestamp(@SqlType(StandardTypes.VARCHAR) Slice inputTimestamp)
     {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd[ HH:mm:ss[.SSS]]");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd[ HH:mm:ss[.SSS]][ zzz]");
         LocalDate date = LocalDate.parse(inputTimestamp.toStringUtf8(), formatter);
         return date.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);
     }
@@ -220,7 +223,7 @@ public class ExtendedDateTimeFunctions
     @SqlType(StandardTypes.BIGINT)
     public static long dayFromTimestamp(@SqlType(StandardTypes.VARCHAR) Slice inputTimestamp)
     {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd[ HH:mm:ss[.SSS]]");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd[ HH:mm:ss[.SSS]][ zzz]");
         return MonthDay.parse(inputTimestamp.toStringUtf8(), formatter).getDayOfMonth();
     }
 
@@ -229,7 +232,7 @@ public class ExtendedDateTimeFunctions
     @SqlType(StandardTypes.BIGINT)
     public static long hourFromTimestamp(@SqlType(StandardTypes.VARCHAR) Slice inputTimestamp)
     {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("[yyyy-MM-dd ]HH:mm:ss[.SSS]");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("[yyyy-MM-dd ]HH:mm:ss[.SSS][ zzz]");
         return LocalTime.parse(inputTimestamp.toStringUtf8(), formatter).getHour();
     }
 
@@ -238,7 +241,7 @@ public class ExtendedDateTimeFunctions
     @SqlType(StandardTypes.BIGINT)
     public static long minuteFromTimestamp(@SqlType(StandardTypes.VARCHAR) Slice inputTimestamp)
     {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("[yyyy-MM-dd ]HH:mm:ss[.SSS]");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("[yyyy-MM-dd ]HH:mm:ss[.SSS][ zzz]");
         return LocalTime.parse(inputTimestamp.toStringUtf8(), formatter).getMinute();
     }
 
@@ -247,7 +250,7 @@ public class ExtendedDateTimeFunctions
     @SqlType(StandardTypes.BIGINT)
     public static long secondFromTimestamp(@SqlType(StandardTypes.VARCHAR) Slice inputTimestamp)
     {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("[yyyy-MM-dd ]HH:mm:ss[.SSS]");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("[yyyy-MM-dd ]HH:mm:ss[.SSS][ zzz]");
         return LocalTime.parse(inputTimestamp.toStringUtf8(), formatter).getSecond();
     }
 
@@ -256,7 +259,7 @@ public class ExtendedDateTimeFunctions
     @SqlType(StandardTypes.BIGINT)
     public static long diffStringDateInDays(@SqlType(StandardTypes.VARCHAR) Slice inputDate1, @SqlType(StandardTypes.VARCHAR) Slice inputDate2)
     {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd[ HH:mm:ss[.SSS]]");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd[ HH:mm:ss[.SSS]][ zzz]");
         LocalDate date1 = LocalDate.parse(inputDate1.toStringUtf8(), formatter);
         LocalDate date2 = LocalDate.parse(inputDate2.toStringUtf8(), formatter);
         return date1.toEpochDay() - date2.toEpochDay();
@@ -284,5 +287,25 @@ public class ExtendedDateTimeFunctions
     public static long diffTimestampWithTimezoneDateInDays(@SqlType(StandardTypes.TIMESTAMP_WITH_TIME_ZONE) long timestamp1, @SqlType(StandardTypes.TIMESTAMP_WITH_TIME_ZONE) long timestamp2)
     {
         return diffTimestampWithTimeZone(utf8Slice("day"), timestamp2, timestamp1);
+    }
+
+    @Description("Converts the number of seconds from unix epoch to a string representing the timestamp")
+    @ScalarFunction("format_unixtimestamp")
+    @SqlType(StandardTypes.VARCHAR)
+    public static Slice fromUnixtimeToStringTimestamp(@SqlType(StandardTypes.BIGINT) long epochtime)
+    {
+        LocalDateTime timestamp = LocalDateTime.ofEpochSecond(epochtime, 0, ZoneOffset.UTC);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        return utf8Slice(timestamp.format(formatter));
+    }
+
+    @Description("Converts the number of seconds from unix epoch to a string representing the timestamp according to the given format")
+    @ScalarFunction("format_unixtimestamp")
+    @SqlType(StandardTypes.VARCHAR)
+    public static Slice fromUnixtimeWithFormatToStringTimestamp(@SqlType(StandardTypes.BIGINT) long epochtime, @SqlType(StandardTypes.VARCHAR) Slice format)
+    {
+        ZonedDateTime timestamp = ZonedDateTime.of(LocalDateTime.ofEpochSecond(epochtime, 0, ZoneOffset.UTC), ZoneId.of("UTC"));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format.toStringUtf8());
+        return utf8Slice(timestamp.format(formatter));
     }
 }

@@ -32,7 +32,8 @@ The repository contains the following UDFs implemented for Presto :
 
 ####HIVE UDFs
 * **DATE-TIME Functions**
- 1. **to_utc_timestamp(timestamp, string timezone) -> timestamp** <br />Assumes given timestamp is in given timezone and converts to UTC (as of Hive 0.8.0). For example, to_utc_timestamp('1970-01-01 00:00:00','PST') returns 1970-01-01 08:00:00. 
+ 1. **to_utc_timestamp(timestamp, string timezone) -> timestamp** <br />
+      Assumes given timestamp is in given timezone and converts to UTC (as of Hive 0.8.0). For example, to_utc_timestamp('1970-01-01 00:00:00','PST') returns 1970-01-01 08:00:00. 
  2. **from_utc_timestamp(timestamp, string timezone) -> timestamp**<br />
       Assumes given timestamp is UTC and converts to given timezone (as of Hive 0.8.0). For example, from_utc_timestamp('1970-01-01 08:00:00','PST') returns 1970-01-01 00:00:00.
  3. **unix_timestamp() -> timestamp**<br />
@@ -59,17 +60,31 @@ The repository contains the following UDFs implemented for Presto :
       Adds a number of days to startdate: date_add('2008-12-31', 1) = '2009-01-01'.
  14. **datediff(string enddate, string startdate) -> string**<br />
       Returns the number of days from startdate to enddate: datediff('2009-03-01', '2009-02-27') = 2.
+ 15. **format_unixtimestamp(bigint unixtime[, string format]) -> string**<br />
+      Converts the number of seconds from unix epoch (1970-01-01 00:00:00 UTC) to a string representing the timestamp of that moment in the current system time zone in the format of "1970-01-01 00:00:00" unless a format string is specified. If a format string is specified the epoch time is converted in the specified format. More information about the formatter can be found [here](https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html).<br /> 
+      _**NOTE :** Due to name collision of presto 0.142's implementaion of `from_unixtime(bigint unixtime)` function, which returns the value as a timestamp type and Hive's `from_unixtime(bigint unixtime[, string format])` function, which returns the value as string type and supports formatter, the hive UDF has been implemented as `format_unixtimestamp(bigint unixtime[, string format])`._
 
 * **MATH Functions**
  1. **pmod(INT a, INT b) -> INT, pmod(DOUBLE a, DOUBLE b) -> DOUBLE**<br />
-    Returns the positive value of a mod b.
+      Returns the positive value of a mod b: pmod(17, -5) = -3.
  2. **rands(INT seed) -> DOUBLE**<br />
-    Returns a random number (that changes from row to row) that is distributed uniformly from 0 to 1. Specifying the seed will make sure the generated random number sequence is deterministic. <br />_**NOTE :** Due to name collision of presto 0.142's implementaion of rand(int a) function, which returns a number between 0 to a and Hive's rand(int seed) function, which sets the seed for the random number generator, the hive UDF has been implemented as rands(int seed)._ 
+      Returns a random number (that changes from row to row) that is distributed uniformly from 0 to 1. Specifying the seed will make sure the generated random number sequence is deterministic: rands(3) = 0.731057369148862 <br />
+      _**NOTE :** Due to name collision of presto 0.142's implementaion of `rand(int a)` function, which returns a number between 0 to a and Hive's `rand(int seed)` function, which sets the seed for the random number generator, the hive UDF has been implemented as `rands(int seed)`._
+ 3. **bin(BIGINT a) -> STRING**<br />
+      Returns the number in binary format: bin(100) = 1100100.
+ 4. **hex(BIGINT a) -> STRING, hex(STRING a) -> STRING, hex(BINARY a) -> STRING**<br />
+      If the argument is an INT or binary, hex returns the number as a STRING in hexadecimal format. Otherwise if the number is a STRING, it converts each character into its hexadecimal representation and returns the resulting STRING:  hex(123) = 7b, hex('123') = 7b, hex('1100100') = 64.
+ 5. **unhex(STRING a) -> BINARY**<br /> 
+      Inverse of hex. Interprets each pair of characters as a hexadecimal number and converts to the byte representation of the number: unhex('7b') = 1111011.
+
 
 * **STRING Functions**
- 1. **locate(string substr, string str[, int pos]) -> int** <br />Returns the position of the first occurrence of substr in str after position pos: locate('si', 'mississipi', 2) = 4, locate('si', 'mississipi', 5) = 7
- 2. **find_in_set(string str, string strList) -> int** <br />Returns the first occurance of str in strList where strList is a comma-delimited string. Returns null if either argument is null. Returns 0 if the first argument contains any commas. For example, find_in_set('ab', 'abc,b,ab,c,def') returns 3.
- 
+ 1. **locate(string substr, string str[, int pos]) -> int** <br />
+      Returns the position of the first occurrence of substr in str after position pos: locate('si', 'mississipi', 2) = 4, locate('si', 'mississipi', 5) = 7
+ 2. **find_in_set(string str, string strList) -> int** <br />
+      Returns the first occurance of str in strList where strList is a comma-delimited string. Returns null if either argument is null. Returns 0 if the first argument contains any commas:  find_in_set('ab', 'abc,b,ab,c,def') returns 3.
+ 3. **instr(string str, string substr) -> int** <br />
+      Returns the position of the first occurrence of substr in str. Returns null if either of the arguments are null and returns 0 if substr could not be found in str: instr('mississipi' , 'si') = 4.
 
 
 ##Release a new version of presto-udfs
