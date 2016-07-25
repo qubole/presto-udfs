@@ -23,6 +23,7 @@ import com.facebook.presto.operator.aggregation.AggregationFunction;
 import com.facebook.presto.operator.window.WindowFunction;
 import com.facebook.presto.spi.type.TypeManager;
 import com.google.common.collect.ImmutableList;
+import io.airlift.log.Logger;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -31,8 +32,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
-import io.airlift.log.Logger;
 
 /**
  * Created by stagra on 2/17/15.
@@ -110,9 +109,20 @@ public class UdfFactory implements FunctionFactory
                             log.info(String.format("Could not add %s, exception: %s, stack: %s", clazz.getName(), e, e.getStackTrace()));
                         }
                     }
-
                 }
-
+                else if (clazz.getName().startsWith("com.qubole.presto.udfs.sqlFunction")) {
+                    try {
+                        builder.function((SqlFunction) clazz.newInstance());
+                    }
+                    catch (Exception e) {
+                        if (e.getCause() instanceof IllegalAccessException) {
+                            // This is alright, must be helper classes
+                        }
+                        else {
+                            log.info(String.format("Could not add %s, exception: %s, stack: %s", clazz.getName(), e, e.getStackTrace()));
+                        }
+                    }
+                }
             }
         }
     }
