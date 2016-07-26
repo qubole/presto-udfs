@@ -77,7 +77,6 @@ The repository contains the following UDFs implemented for Presto :
  5. **unhex(STRING a) -> BINARY**<br /> 
       Inverse of hex. Interprets each pair of characters as a hexadecimal number and converts to the byte representation of the number: unhex('7b') = 1111011.
 
-
 * **STRING Functions**
  1. **locate(string substr, string str[, int pos]) -> int** <br />
       Returns the position of the first occurrence of substr in str after position pos: locate('si', 'mississipi', 2) = 4, locate('si', 'mississipi', 5) = 7
@@ -86,7 +85,24 @@ The repository contains the following UDFs implemented for Presto :
  3. **instr(string str, string substr) -> int** <br />
       Returns the position of the first occurrence of substr in str. Returns null if either of the arguments are null and returns 0 if substr could not be found in str: instr('mississipi' , 'si') = 4.
 
+* **CONDITIONAL Functions**
+  1. **nvl(T value, T default_value) -> T**<br/>
+      Returns default value if value is null else returns value: nvl(3,4) = 3, nvl(NULL,4) = 4.
 
+* **MISCELLANEOUS Functions**
+  1. **hash(a1[, a2...]) -> int**<br/>
+      Returns a hash value of the arguments. hash('a','b','c') = 143025634.
+
+## Adding User Defined Functions to Presto-UDFs
+  * **Scalar Functions**<br />
+      Scalar functions return a single value, based on the input value. Scalar Functions need to be added to `presto-udfs/src/main/java/com/qubole/presto/udfs/scalar`. They should follow the same annotations as Presto scalar functions.<br/>
+  * **Aggregation Functions**<br />
+      SQL aggregate functions return a single value, calculated from values in a column. Aggregation Functions need to be added to `presto-udfs/src/main/java/com/qubole/presto/udfs/aggregation`. They should follow the same annotations as Presto aggregation functions.<br />
+  * **Window Functions**<br />
+      A window function performs a calculation across a set of table rows that are somehow related to the current row. This is comparable to the type of calculation that can be done with an aggregate function. But unlike regular aggregate functions, use of a window function does not cause rows to become grouped into a single output row — the rows retain their separate identities. Behind the scenes, the window function is able to access more than just the current row of the query result. Window functions need to be added to `presto-udfs/src/main/java/com/qubole/presto/udfs/window`.<br />
+  * **Code Generator Functions**<br />
+      CodeGen functions need to be added to `presto-udfs/src/main/java/com/qubole/presto/udfs/sqlFunction`. They should follow the same annotation as Presto CodeGen Functions.<br />
+  
 ##Release a new version of presto-udfs
 Releases are always created from `master`. During development, `master` 
 has a version like `X.Y.Z-SNAPSHOT`. 
