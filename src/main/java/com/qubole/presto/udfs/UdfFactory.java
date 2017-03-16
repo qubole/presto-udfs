@@ -15,14 +15,12 @@
  */
 package com.qubole.presto.udfs;
 
-import com.facebook.presto.metadata.FunctionFactory;
 import com.facebook.presto.metadata.FunctionListBuilder;
 import com.facebook.presto.metadata.SqlAggregationFunction;
 import com.facebook.presto.metadata.SqlFunction;
-import com.facebook.presto.operator.aggregation.AggregationFunction;
-import com.facebook.presto.operator.window.WindowFunction;
-import com.facebook.presto.spi.type.TypeManager;
-import com.google.common.collect.ImmutableList;
+import com.facebook.presto.spi.function.AggregationFunction;
+import com.facebook.presto.spi.function.WindowFunction;
+import com.google.common.collect.Sets;
 import io.airlift.log.Logger;
 
 import java.io.FileInputStream;
@@ -30,35 +28,38 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 /**
  * Created by stagra on 2/17/15.
  */
-public class UdfFactory implements FunctionFactory
+
+// This class is not used anymore as 0.157 does not provide a way to directly add SqlFunctions
+public class UdfFactory
 {
-    private final TypeManager typeManager;
+    //private final TypeManager typeManager;
     private static final Logger log = Logger.get(UdfFactory.class);
 
-    public UdfFactory(TypeManager tm)
+    /*public UdfFactory(TypeManager tm)
     {
         this.typeManager = tm;
-    }
-    @Override
-    public List<SqlFunction> listFunctions()
+    }*/
+
+    public Set<SqlFunction> listFunctions()
     {
-        FunctionListBuilder builder = new FunctionListBuilder(typeManager);
+        FunctionListBuilder builder = new FunctionListBuilder();
         try {
             List<Class<?>> classes = getFunctionClasses();
             addFunctions(builder, classes);
         }
         catch (IOException e) {
             System.out.println("Could not load classes from jar file: " + e);
-            return ImmutableList.of();
+            return Sets.newHashSet();
         }
 
-        return builder.getFunctions();
+        return Sets.newHashSet(builder.getFunctions());
     }
 
     private void addFunctions(FunctionListBuilder builder, List<Class<?>> classes)

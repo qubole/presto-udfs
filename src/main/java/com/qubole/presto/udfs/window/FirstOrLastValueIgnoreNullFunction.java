@@ -15,8 +15,8 @@
  */
 package com.qubole.presto.udfs.window;
 
-import com.facebook.presto.operator.window.ValueWindowFunction;
 import com.facebook.presto.spi.block.BlockBuilder;
+import com.facebook.presto.spi.function.ValueWindowFunction;
 import com.facebook.presto.spi.type.Type;
 
 import java.util.List;
@@ -42,9 +42,16 @@ public class FirstOrLastValueIgnoreNullFunction
 
     private Direction d;
 
+    // TODO: This constructor is not used anymore in 0.157, need to remove it
     protected FirstOrLastValueIgnoreNullFunction(Type type, List<Integer> argumentChannels, Direction d)
     {
         this.type = type;
+        this.argumentChannel = getOnlyElement(argumentChannels);
+        this.d = d;
+    }
+
+    protected FirstOrLastValueIgnoreNullFunction(List<Integer> argumentChannels, Direction d)
+    {
         this.argumentChannel = getOnlyElement(argumentChannels);
         this.d = d;
     }

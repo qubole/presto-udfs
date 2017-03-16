@@ -15,11 +15,10 @@
  */
 package com.qubole.presto.udfs.aggregation.state;
 
-import com.facebook.presto.operator.aggregation.state.AccumulatorState;
-import com.facebook.presto.operator.aggregation.state.AccumulatorStateMetadata;
-import io.airlift.slice.SliceOutput;
-
+import com.facebook.presto.spi.function.AccumulatorState;
+import com.facebook.presto.spi.function.AccumulatorStateMetadata;
 import com.facebook.presto.spi.type.Type;
+import io.airlift.slice.SliceOutput;
 
 @AccumulatorStateMetadata(stateFactoryClass = ArrayAggregationStateFactory.class, stateSerializerClass = ArrayAggregationStateSerializer.class)
 public interface ArrayAggregationState

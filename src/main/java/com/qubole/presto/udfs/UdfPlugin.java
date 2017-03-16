@@ -15,39 +15,36 @@
  */
 package com.qubole.presto.udfs;
 
-import com.facebook.presto.metadata.FunctionFactory;
 import com.facebook.presto.spi.Plugin;
-import com.facebook.presto.spi.type.TypeManager;
-import com.google.common.collect.ImmutableList;
-import javax.inject.Inject;
+import com.google.common.collect.ImmutableSet;
+import com.qubole.presto.udfs.scalar.hiveUdfs.ExtendedDateTimeFunctions;
+import com.qubole.presto.udfs.scalar.hiveUdfs.ExtendedMathematicFunctions;
+import com.qubole.presto.udfs.scalar.hiveUdfs.ExtendedStringFunctions;
+import com.qubole.presto.udfs.window.FirstNonNullValueFunction;
+import com.qubole.presto.udfs.window.LastNonNullValueFunction;
 
-import java.util.List;
-import java.util.Map;
-
-import static com.google.common.base.Preconditions.checkNotNull;
+import java.util.Set;
 
 public class UdfPlugin implements Plugin
 {
-    TypeManager typeManager;
-
-    @Inject
-    public void setTypeManager(TypeManager typeManager)
-    {
-        this.typeManager = checkNotNull(typeManager, "typeManager is null");
-    }
-
     @Override
-    public void setOptionalConfig(Map<String, String> optionalConfig)
+    public Set<Class<?>> getFunctions()
     {
-    }
-
-    @Override
-    public <T> List<T> getServices(Class<T> type)
-    {
-        if (type == FunctionFactory.class) {
-            return ImmutableList.of(type.cast(new UdfFactory(typeManager)));
-        }
-
-        return ImmutableList.of();
+        /*
+         * Presto 0.157 does not expose the interfaces to add SqlFunction objects directly
+         * We can only add udfs via Annotations now
+         *
+         * Unsupported udfs right now:
+         * Hash
+         * Nvl
+         * array_aggr
+         */
+        return ImmutableSet.<Class<?>>builder()
+                .add(ExtendedDateTimeFunctions.class)
+                .add(ExtendedMathematicFunctions.class)
+                .add(ExtendedStringFunctions.class)
+                .add(FirstNonNullValueFunction.class)
+                .add(LastNonNullValueFunction.class)
+                .build();
     }
 }

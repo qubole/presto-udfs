@@ -24,7 +24,10 @@ import com.facebook.presto.bytecode.MethodDefinition;
 import com.facebook.presto.bytecode.Parameter;
 import com.facebook.presto.bytecode.Scope;
 import com.facebook.presto.bytecode.control.IfStatement;
+import com.facebook.presto.metadata.BoundVariables;
+import com.facebook.presto.metadata.FunctionKind;
 import com.facebook.presto.metadata.FunctionRegistry;
+import com.facebook.presto.metadata.Signature;
 import com.facebook.presto.metadata.SqlScalarFunction;
 import com.facebook.presto.operator.scalar.ScalarFunctionImplementation;
 import com.facebook.presto.spi.PrestoException;
@@ -38,7 +41,6 @@ import io.airlift.slice.Slice;
 
 import java.lang.invoke.MethodHandle;
 import java.util.List;
-import java.util.Map;
 
 import static com.facebook.presto.bytecode.Access.FINAL;
 import static com.facebook.presto.bytecode.Access.PRIVATE;
@@ -48,9 +50,10 @@ import static com.facebook.presto.bytecode.Access.a;
 import static com.facebook.presto.bytecode.CompilerUtils.defineClass;
 import static com.facebook.presto.bytecode.Parameter.arg;
 import static com.facebook.presto.bytecode.ParameterizedType.type;
-import static com.facebook.presto.metadata.Signature.typeParameter;
-import static com.facebook.presto.spi.StandardErrorCode.INTERNAL_ERROR;
+import static com.facebook.presto.metadata.Signature.typeVariable;
+import static com.facebook.presto.spi.StandardErrorCode.GENERIC_INTERNAL_ERROR;
 import static com.facebook.presto.spi.StandardErrorCode.INVALID_FUNCTION_ARGUMENT;
+import static com.facebook.presto.spi.type.TypeSignature.parseTypeSignature;
 import static com.facebook.presto.sql.gen.BytecodeUtils.invoke;
 import static com.facebook.presto.util.Reflection.methodHandle;
 import static java.lang.String.format;
@@ -70,13 +73,14 @@ public final class Nvl
 
     public Nvl()
     {
-        super(
+        super(new Signature(
                 NAME,
-                ImmutableList.of(typeParameter("T")),
-                "T",
-                ImmutableList.of("T"),
-                true
-        );
+                FunctionKind.SCALAR,
+                ImmutableList.of(typeVariable("E")),
+                ImmutableList.of(),
+                parseTypeSignature("E"),
+                ImmutableList.of(parseTypeSignature("E")),
+                true));
     }
 
     @Override
@@ -98,12 +102,12 @@ public final class Nvl
     }
 
     @Override
-    public ScalarFunctionImplementation specialize(Map<String, Type> types, int arity, TypeManager typeManager, FunctionRegistry functionRegistry)
+    public ScalarFunctionImplementation specialize(BoundVariables types, int arity, TypeManager typeManager, FunctionRegistry functionRegistry)
     {
         if (arity != 2) {
             throw new PrestoException(INVALID_FUNCTION_ARGUMENT, "There must be two arguments");
         }
-        Type type = types.get("T");
+        Type type = types.getTypeVariable("E");
         ImmutableList.Builder<Class<?>> builder = ImmutableList.builder();
         if (type.getJavaType() == long.class) {
             builder.add(Long.class);
@@ -183,7 +187,7 @@ public final class Nvl
                      .append(invoke(binder.bind(CHECK_NULL_S), "checkNullS"));
          }
          else {
-                throw new PrestoException(INTERNAL_ERROR, format("Unexpected type %s", nativeContainerType.getName()));
+                throw new PrestoException(GENERIC_INTERNAL_ERROR, format("Unexpected type %s", nativeContainerType.getName()));
          }
 
         body.append(new IfStatement()

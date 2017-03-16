@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 package com.qubole.presto.udfs.scalar;
-/*
-import com.facebook.presto.operator.Description;
-import com.facebook.presto.operator.scalar.ScalarFunction;
+
+import com.facebook.presto.spi.function.Description;
+import com.facebook.presto.spi.function.ScalarFunction;
+import com.facebook.presto.spi.function.SqlType;
 import com.facebook.presto.spi.type.StandardTypes;
-import com.facebook.presto.type.SqlType;
-*/
+
 /**
  * Created by stagra on 2/17/15.
  */
@@ -29,10 +29,11 @@ public class ExtendedMathFunctions
 
     /*
      * These functions are now part of presto. Leaving the code here to serve as example to write scalar uds
+     * */
     @Description("Converts radians to degrees")
     @ScalarFunction
     @SqlType(StandardTypes.DOUBLE)
-    public static double degrees(@SqlType(StandardTypes.DOUBLE) double num)
+    public static double Qdegrees(@SqlType(StandardTypes.DOUBLE) double num)
     {
         return Math.toDegrees(num);
     }
@@ -40,9 +41,8 @@ public class ExtendedMathFunctions
     @Description("Converts degress to radians")
     @ScalarFunction
     @SqlType(StandardTypes.DOUBLE)
-    public static double radians(@SqlType(StandardTypes.DOUBLE) double num)
+    public static double Qradians(@SqlType(StandardTypes.DOUBLE) double num)
     {
         return Math.toRadians(num);
     }
-    */
 }

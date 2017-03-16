@@ -15,11 +15,11 @@
  */
 package com.qubole.presto.udfs.scalar.hiveUdfs;
 
-import com.facebook.presto.operator.Description;
-import com.facebook.presto.operator.scalar.ScalarFunction;
 import com.facebook.presto.spi.ConnectorSession;
+import com.facebook.presto.spi.function.Description;
+import com.facebook.presto.spi.function.ScalarFunction;
+import com.facebook.presto.spi.function.SqlType;
 import com.facebook.presto.spi.type.StandardTypes;
-import com.facebook.presto.type.SqlType;
 import io.airlift.slice.Slice;
 import io.airlift.slice.Slices;
 
@@ -35,17 +35,17 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.IsoFields;
 
-import static com.facebook.presto.operator.scalar.DateTimeFunctions.addFieldValueDate;
-import static com.facebook.presto.operator.scalar.DateTimeFunctions.diffDate;
-import static com.facebook.presto.operator.scalar.DateTimeFunctions.diffTimestamp;
-import static com.facebook.presto.operator.scalar.DateTimeFunctions.diffTimestampWithTimeZone;
-import static com.facebook.presto.operator.scalar.DateTimeFunctions.formatDatetime;
-import static com.facebook.presto.operator.scalar.DateTimeFunctions.timeZoneHourFromTimestampWithTimeZone;
-import static com.facebook.presto.operator.scalar.DateTimeFunctions.timeZoneMinuteFromTimestampWithTimeZone;
-import static com.facebook.presto.operator.scalar.DateTimeFunctions.toISO8601FromDate;
-import static com.facebook.presto.operator.scalar.DateTimeFunctions.toUnixTimeFromTimestampWithTimeZone;
-import static com.facebook.presto.operator.scalar.DateTimeFunctions.weekFromTimestamp;
-import static com.facebook.presto.operator.scalar.DateTimeFunctions.weekFromTimestampWithTimeZone;
+import static com.qubole.presto.udfs.scalar.hiveUdfs.PrestoDateTimeFunctions.addFieldValueDate;
+import static com.qubole.presto.udfs.scalar.hiveUdfs.PrestoDateTimeFunctions.diffDate;
+import static com.qubole.presto.udfs.scalar.hiveUdfs.PrestoDateTimeFunctions.diffTimestamp;
+import static com.qubole.presto.udfs.scalar.hiveUdfs.PrestoDateTimeFunctions.diffTimestampWithTimeZone;
+import static com.qubole.presto.udfs.scalar.hiveUdfs.PrestoDateTimeFunctions.formatDatetime;
+import static com.qubole.presto.udfs.scalar.hiveUdfs.PrestoDateTimeFunctions.timeZoneHourFromTimestampWithTimeZone;
+import static com.qubole.presto.udfs.scalar.hiveUdfs.PrestoDateTimeFunctions.timeZoneMinuteFromTimestampWithTimeZone;
+import static com.qubole.presto.udfs.scalar.hiveUdfs.PrestoDateTimeFunctions.toISO8601FromDate;
+import static com.qubole.presto.udfs.scalar.hiveUdfs.PrestoDateTimeFunctions.toUnixTimeFromTimestampWithTimeZone;
+import static com.qubole.presto.udfs.scalar.hiveUdfs.PrestoDateTimeFunctions.weekFromTimestamp;
+import static com.qubole.presto.udfs.scalar.hiveUdfs.PrestoDateTimeFunctions.weekFromTimestampWithTimeZone;
 import static com.facebook.presto.spi.type.DateTimeEncoding.packDateTimeWithZone;
 import static io.airlift.slice.Slices.utf8Slice;
 

@@ -15,15 +15,15 @@
  */
 package com.qubole.presto.udfs.scalar.hiveUdfs;
 
-import java.util.Random;
-import javax.annotation.Nullable;
-
-import com.facebook.presto.operator.Description;
-import com.facebook.presto.operator.scalar.ScalarFunction;
+import com.facebook.presto.spi.function.Description;
+import com.facebook.presto.spi.function.ScalarFunction;
+import com.facebook.presto.spi.function.SqlNullable;
+import com.facebook.presto.spi.function.SqlType;
 import com.facebook.presto.spi.type.StandardTypes;
-import com.facebook.presto.type.SqlType;
 import io.airlift.slice.Slice;
 import io.airlift.slice.Slices;
+
+import java.util.Random;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -43,7 +43,7 @@ public class ExtendedMathematicFunctions
         return rand.nextDouble();
     }
 
-    @Nullable
+    @SqlNullable
     @Description("Returns the positive value of a mod b.")
     @ScalarFunction("pmod")
     @SqlType(StandardTypes.BIGINT)
@@ -55,7 +55,7 @@ public class ExtendedMathematicFunctions
         return java.lang.Math.floorMod(a, b);
     }
 
-    @Nullable
+    @SqlNullable
     @Description("Returns the positive value of a mod b ")
     @ScalarFunction("pmod")
     @SqlType(StandardTypes.DOUBLE)
@@ -91,7 +91,7 @@ public class ExtendedMathematicFunctions
         return Slices.copiedBuffer(hex, UTF_8);
     }
 
-    @Nullable
+    @SqlNullable
     @Description("Converts string number to hex value")
     @ScalarFunction("hex")
     @SqlType(StandardTypes.VARCHAR)
@@ -108,7 +108,7 @@ public class ExtendedMathematicFunctions
         }
     }
 
-    @Nullable
+    @SqlNullable
     @Description("Converts binary to hex value")
     @ScalarFunction("hex")
     @SqlType(StandardTypes.VARCHAR)
@@ -125,7 +125,7 @@ public class ExtendedMathematicFunctions
         }
     }
 
-    @Nullable
+    @SqlNullable
     @Description("Converts Hexadecimal number to binary value")
     @ScalarFunction("unhex")
     @SqlType(StandardTypes.VARBINARY)

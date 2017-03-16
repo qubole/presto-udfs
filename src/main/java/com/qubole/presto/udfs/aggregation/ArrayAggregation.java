@@ -16,23 +16,27 @@
 package com.qubole.presto.udfs.aggregation;
 
 import com.facebook.presto.bytecode.DynamicClassLoader;
+import com.facebook.presto.metadata.BoundVariables;
 import com.facebook.presto.metadata.FunctionRegistry;
+import com.facebook.presto.metadata.Signature;
 import com.facebook.presto.metadata.SqlAggregationFunction;
 import com.facebook.presto.operator.aggregation.AccumulatorCompiler;
 import com.facebook.presto.operator.aggregation.AggregationMetadata;
 import com.facebook.presto.operator.aggregation.AggregationMetadata.ParameterMetadata;
 import com.facebook.presto.operator.aggregation.GenericAccumulatorFactoryBinder;
 import com.facebook.presto.operator.aggregation.InternalAggregationFunction;
-import com.qubole.presto.udfs.aggregation.state.ArrayAggregationState;
-import com.qubole.presto.udfs.aggregation.state.ArrayAggregationStateFactory;
-import com.qubole.presto.udfs.aggregation.state.ArrayAggregationStateSerializer;
 import com.facebook.presto.spi.block.Block;
 import com.facebook.presto.spi.block.BlockBuilder;
 import com.facebook.presto.spi.block.BlockBuilderStatus;
 import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.spi.type.TypeManager;
+import com.facebook.presto.spi.type.TypeSignature;
 import com.facebook.presto.type.ArrayType;
+import com.facebook.presto.util.ImmutableCollectors;
 import com.google.common.collect.ImmutableList;
+import com.qubole.presto.udfs.aggregation.state.ArrayAggregationState;
+import com.qubole.presto.udfs.aggregation.state.ArrayAggregationStateFactory;
+import com.qubole.presto.udfs.aggregation.state.ArrayAggregationStateSerializer;
 import io.airlift.slice.DynamicSliceOutput;
 import io.airlift.slice.Slice;
 import io.airlift.slice.SliceInput;
@@ -41,9 +45,7 @@ import io.airlift.slice.SliceOutput;
 import java.lang.invoke.MethodHandle;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import static com.facebook.presto.metadata.Signature.typeParameter;
 import static com.facebook.presto.operator.aggregation.AggregationMetadata.ParameterMetadata.ParameterType.BLOCK_INDEX;
 import static com.facebook.presto.operator.aggregation.AggregationMetadata.ParameterMetadata.ParameterType.BLOCK_INPUT_CHANNEL;
 import static com.facebook.presto.operator.aggregation.AggregationMetadata.ParameterMetadata.ParameterType.STATE;
@@ -54,7 +56,6 @@ import static com.facebook.presto.util.Reflection.methodHandle;
 public class ArrayAggregation
         extends SqlAggregationFunction
 {
-    public static final ArrayAggregation ARRAY_AGGREGATION = new ArrayAggregation();
     private static final String NAME = "array_aggr";
     private static final MethodHandle INPUT_FUNCTION = methodHandle(ArrayAggregation.class, "input", Type.class, ArrayAggregationState.class, Block.class, int.class);
     private static final MethodHandle COMBINE_FUNCTION = methodHandle(ArrayAggregation.class, "combine", Type.class, ArrayAggregationState.class, ArrayAggregationState.class);
@@ -62,7 +63,7 @@ public class ArrayAggregation
 
     public ArrayAggregation()
     {
-        super(NAME, ImmutableList.of(typeParameter("T")), "array(T)", ImmutableList.of("T"));
+        super(NAME, ImmutableList.of(Signature.typeVariable("T")), ImmutableList.of(), TypeSignature.parseTypeSignature("array(T)"), ImmutableList.of(TypeSignature.parseTypeSignature("T")));
     }
 
     @Override
@@ -72,9 +73,9 @@ public class ArrayAggregation
     }
 
     @Override
-    public InternalAggregationFunction specialize(Map<String, Type> types, int arity, TypeManager typeManager, FunctionRegistry functionRegistry)
+    public InternalAggregationFunction specialize(BoundVariables boundVariables, int arity, TypeManager typeManager, FunctionRegistry functionRegistry)
     {
-        Type valueType = types.get("T");
+        Type valueType = boundVariables.getTypeVariable("T");
         return generateAggregation(valueType);
     }
 
@@ -89,21 +90,18 @@ public class ArrayAggregation
         Type outputType = new ArrayType(valueType);
         ArrayAggregationStateFactory stateFactory = new ArrayAggregationStateFactory(valueType);
         AggregationMetadata metadata = new AggregationMetadata(
-                generateAggregationName(NAME, valueType, inputTypes),
+                generateAggregationName(NAME, valueType.getTypeSignature(), (List) inputTypes.stream().map(Type::getTypeSignature).collect(ImmutableCollectors.toImmutableList())),
                 createInputParameterMetadata(valueType),
                 INPUT_FUNCTION.bindTo(valueType),
-                null,
-                null,
                 COMBINE_FUNCTION.bindTo(valueType),
-                OUTPUT_FUNCTION,
+                OUTPUT_FUNCTION.bindTo(valueType),
                 ArrayAggregationState.class,
                 stateSerializer,
                 stateFactory,
-                outputType,
-                false);
+                outputType);
 
         GenericAccumulatorFactoryBinder factory = new AccumulatorCompiler().generateAccumulatorFactoryBinder(metadata, classLoader);
-        return new InternalAggregationFunction(NAME, inputTypes, intermediateType, valueType, true, false, factory);
+        return new InternalAggregationFunction(NAME, inputTypes, intermediateType, outputType, true, factory);
     }
 
     private static List<ParameterMetadata> createInputParameterMetadata(Type value)

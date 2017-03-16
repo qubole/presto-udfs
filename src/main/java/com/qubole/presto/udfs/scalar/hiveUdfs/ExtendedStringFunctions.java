@@ -15,14 +15,15 @@
  */
 package com.qubole.presto.udfs.scalar.hiveUdfs;
 
-import com.facebook.presto.operator.Description;
-import com.facebook.presto.operator.scalar.ScalarFunction;
+import com.facebook.presto.spi.function.Description;
+import com.facebook.presto.spi.function.ScalarFunction;
+import com.facebook.presto.spi.function.SqlType;
 import com.facebook.presto.spi.type.StandardTypes;
-import com.facebook.presto.type.SqlType;
+import com.google.common.primitives.Ints;
 import io.airlift.slice.Slice;
+import io.airlift.slice.SliceUtf8;
+import io.airlift.slice.Slices;
 
-import static com.facebook.presto.operator.scalar.StringFunctions.stringPosition;
-import static com.facebook.presto.operator.scalar.StringFunctions.substr;
 import static io.airlift.slice.SliceUtf8.countCodePoints;
 
 /**
@@ -101,5 +102,50 @@ public class ExtendedStringFunctions
             return 0;
         }
         return stringPosition(string, substring);
+    }
+
+    private static long stringPosition(Slice string, Slice substring)
+    {
+        if (substring.length() == 0) {
+            return 1L;
+        }
+        else {
+            int index = string.indexOf(substring);
+            return index < 0 ? 0L : (long) (SliceUtf8.countCodePoints(string, 0, index) + 1);
+        }
+    }
+
+    private static Slice substr(Slice utf8, long start)
+    {
+        if (start != 0L && utf8.length() != 0) {
+            int startCodePoint = Ints.saturatedCast(start);
+            int codePoints;
+            int indexStart;
+            if (startCodePoint > 0) {
+                codePoints = SliceUtf8.offsetOfCodePoint(utf8, startCodePoint - 1);
+                if (codePoints < 0) {
+                    return Slices.EMPTY_SLICE;
+                }
+                else {
+                    indexStart = utf8.length();
+                    return utf8.slice(codePoints, indexStart - codePoints);
+                }
+            }
+            else {
+                codePoints = SliceUtf8.countCodePoints(utf8);
+                startCodePoint += codePoints;
+                if (startCodePoint < 0) {
+                    return Slices.EMPTY_SLICE;
+                }
+                else {
+                    indexStart = SliceUtf8.offsetOfCodePoint(utf8, startCodePoint);
+                    int indexEnd = utf8.length();
+                    return utf8.slice(indexStart, indexEnd - indexStart);
+                }
+            }
+        }
+        else {
+            return Slices.EMPTY_SLICE;
+        }
     }
 }
