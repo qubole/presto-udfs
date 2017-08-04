@@ -14,13 +14,13 @@
   limitations under the License. See accompanying LICENSE file.
 {% endcomment %}
 -->
-#Presto User-Defined Functions(UDFs)
-Plugin for Presto to allow addition of user defined functions. The plugin simplifies the process of adding user functions to Presto. 
+# Presto User-Defined Functions(UDFs)
+Plugin for Presto to allow addition of user defined functions. The plugin simplifies the process of adding user functions to Presto.
 
-##Plugging in Presto UDFs
+## Plugging in Presto UDFs
 The details about how to plug in presto UDFs can be found [here](https://www.qubole.com/blog/product/plugging-in-presto-udfs/?nabe=5695374637924352:1).
 
-##Presto Version Compatibility
+## Presto Version Compatibility
 
 | Presto Version| Last Compatible Release|
 | ------------- |:-------------:|
@@ -28,13 +28,13 @@ The details about how to plug in presto UDFs can be found [here](https://www.qub
 | _ver 0.142_      | udfs-1.0.0 |
 | _ver 0.119_      | udfs-0.1.3 |
 
-##Implemented User Defined Functions
-The repository contains the following UDFs implemented for Presto : 
+## Implemented User Defined Functions
+The repository contains the following UDFs implemented for Presto :
 
-####HIVE UDFs
+#### HIVE UDFs
 * **DATE-TIME Functions**
  1. **to_utc_timestamp(timestamp, string timezone) -> timestamp** <br />
-      Assumes given timestamp is in given timezone and converts to UTC (as of Hive 0.8.0). For example, to_utc_timestamp('1970-01-01 00:00:00','PST') returns 1970-01-01 08:00:00. 
+      Assumes given timestamp is in given timezone and converts to UTC (as of Hive 0.8.0). For example, to_utc_timestamp('1970-01-01 00:00:00','PST') returns 1970-01-01 08:00:00.
  2. **from_utc_timestamp(timestamp, string timezone) -> timestamp**<br />
       Assumes given timestamp is UTC and converts to given timezone (as of Hive 0.8.0). For example, from_utc_timestamp('1970-01-01 08:00:00','PST') returns 1970-01-01 00:00:00.
  3. **unix_timestamp() -> timestamp**<br />
@@ -62,7 +62,7 @@ The repository contains the following UDFs implemented for Presto :
  14. **datediff(string enddate, string startdate) -> string**<br />
       Returns the number of days from startdate to enddate: datediff('2009-03-01', '2009-02-27') = 2.
  15. **format_unixtimestamp(bigint unixtime[, string format]) -> string**<br />
-      Converts the number of seconds from unix epoch (1970-01-01 00:00:00 UTC) to a string representing the timestamp of that moment in the current system time zone in the format of "1970-01-01 00:00:00" unless a format string is specified. If a format string is specified the epoch time is converted in the specified format. More information about the formatter can be found [here](https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html).<br /> 
+      Converts the number of seconds from unix epoch (1970-01-01 00:00:00 UTC) to a string representing the timestamp of that moment in the current system time zone in the format of "1970-01-01 00:00:00" unless a format string is specified. If a format string is specified the epoch time is converted in the specified format. More information about the formatter can be found [here](https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html).<br />
       _**NOTE :** Due to name collision of presto 0.142's implementaion of `from_unixtime(bigint unixtime)` function, which returns the value as a timestamp type and Hive's `from_unixtime(bigint unixtime[, string format])` function, which returns the value as string type and supports formatter, the hive UDF has been implemented as `format_unixtimestamp(bigint unixtime[, string format])`._
 
 * **MATH Functions**
@@ -75,7 +75,7 @@ The repository contains the following UDFs implemented for Presto :
       Returns the number in binary format: bin(100) = 1100100.
  4. **hex(BIGINT a) -> STRING, hex(STRING a) -> STRING, hex(BINARY a) -> STRING**<br />
       If the argument is an INT or binary, hex returns the number as a STRING in hexadecimal format. Otherwise if the number is a STRING, it converts each character into its hexadecimal representation and returns the resulting STRING:  hex(123) = 7b, hex('123') = 7b, hex('1100100') = 64.
- 5. **unhex(STRING a) -> BINARY**<br /> 
+ 5. **unhex(STRING a) -> BINARY**<br />
       Inverse of hex. Interprets each pair of characters as a hexadecimal number and converts to the byte representation of the number: unhex('7b') = 1111011.
 
 * **STRING Functions**
@@ -100,11 +100,11 @@ The repository contains the following UDFs implemented for Presto :
  Functions can be added using annotations, follow https://prestodb.io/docs/0.157/develop/functions.html for details on how to add functions
 
   ** Note that Code generated functions were supported only till v1.0.0 due to the limitations presto new versions of Presto puts on plugins
-      
-##Release a new version of presto-udfs
-Releases are always created from `master`. During development, `master` 
-has a version like `X.Y.Z-SNAPSHOT`. 
- 
+
+## Release a new version of presto-udfs
+Releases are always created from `master`. During development, `master`
+has a version like `X.Y.Z-SNAPSHOT`.
+
     # Change version as per http://semver.org/
     mvn release:prepare -Prelease
     mvn release:perform -Prelease
