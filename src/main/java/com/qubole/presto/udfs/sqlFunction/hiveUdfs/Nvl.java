@@ -34,13 +34,13 @@ import com.facebook.presto.spi.PrestoException;
 import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.spi.type.TypeManager;
 import com.facebook.presto.sql.gen.CallSiteBinder;
-import com.facebook.presto.util.ImmutableCollectors;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import io.airlift.slice.Slice;
 
 import java.lang.invoke.MethodHandle;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.facebook.presto.bytecode.Access.FINAL;
 import static com.facebook.presto.bytecode.Access.PRIVATE;
@@ -135,7 +135,7 @@ public final class Nvl
 
     private Class<?> ifNull(List<Class<?>> nativeContainerTypes)
     {
-        List<String> nativeContainerTypeNames = nativeContainerTypes.stream().map(Class::getSimpleName).collect(ImmutableCollectors.toImmutableList());
+        List<String> nativeContainerTypeNames = nativeContainerTypes.stream().map(Class::getSimpleName).collect(Collectors.toList());
         ClassDefinition definition = new ClassDefinition(
                 a(PUBLIC, FINAL),
                 CompilerUtils.makeClassName(Joiner.on("").join(nativeContainerTypeNames) + "Nvl"),

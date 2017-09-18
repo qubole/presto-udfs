@@ -50,7 +50,7 @@ public class ArrayAggregationStateSerializer
     @Override
     public void deserialize(Block block, int index, ArrayAggregationState state)
     {
-        SliceInput input = block.getSlice(index, 0, block.getLength(index)).getInput();
+        SliceInput input = block.getSlice(index, 0, block.getSliceLength(index)).getInput();
         long entries = input.readLong();
         state.setEntries(entries);
         if (entries > 0) {

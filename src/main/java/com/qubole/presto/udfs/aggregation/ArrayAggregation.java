@@ -31,8 +31,7 @@ import com.facebook.presto.spi.block.BlockBuilderStatus;
 import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.spi.type.TypeManager;
 import com.facebook.presto.spi.type.TypeSignature;
-import com.facebook.presto.type.ArrayType;
-import com.facebook.presto.util.ImmutableCollectors;
+import com.facebook.presto.spi.type.ArrayType;
 import com.google.common.collect.ImmutableList;
 import com.qubole.presto.udfs.aggregation.state.ArrayAggregationState;
 import com.qubole.presto.udfs.aggregation.state.ArrayAggregationStateFactory;
@@ -45,6 +44,7 @@ import io.airlift.slice.SliceOutput;
 import java.lang.invoke.MethodHandle;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.facebook.presto.operator.aggregation.AggregationMetadata.ParameterMetadata.ParameterType.BLOCK_INDEX;
 import static com.facebook.presto.operator.aggregation.AggregationMetadata.ParameterMetadata.ParameterType.BLOCK_INPUT_CHANNEL;
@@ -90,7 +90,7 @@ public class ArrayAggregation
         Type outputType = new ArrayType(valueType);
         ArrayAggregationStateFactory stateFactory = new ArrayAggregationStateFactory(valueType);
         AggregationMetadata metadata = new AggregationMetadata(
-                generateAggregationName(NAME, valueType.getTypeSignature(), (List) inputTypes.stream().map(Type::getTypeSignature).collect(ImmutableCollectors.toImmutableList())),
+                generateAggregationName(NAME, valueType.getTypeSignature(), (List) inputTypes.stream().map(Type::getTypeSignature).collect(Collectors.toList())),
                 createInputParameterMetadata(valueType),
                 INPUT_FUNCTION.bindTo(valueType),
                 COMBINE_FUNCTION.bindTo(valueType),
@@ -100,7 +100,7 @@ public class ArrayAggregation
                 stateFactory,
                 outputType);
 
-        GenericAccumulatorFactoryBinder factory = new AccumulatorCompiler().generateAccumulatorFactoryBinder(metadata, classLoader);
+        GenericAccumulatorFactoryBinder factory = AccumulatorCompiler.generateAccumulatorFactoryBinder(metadata, classLoader);
         return new InternalAggregationFunction(NAME, inputTypes, intermediateType, outputType, true, factory);
     }
 
