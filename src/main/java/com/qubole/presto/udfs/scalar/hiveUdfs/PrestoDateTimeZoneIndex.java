@@ -57,7 +57,15 @@ public final class PrestoDateTimeZoneIndex
         FIXED_ZONE_OFFSET = new int[MAX_TIME_ZONE_KEY + 1];
         for (TimeZoneKey timeZoneKey : getTimeZoneKeys()) {
             short zoneKey = timeZoneKey.getKey();
-            DateTimeZone dateTimeZone = DateTimeZone.forID(timeZoneKey.getId());
+            DateTimeZone dateTimeZone;
+            try {
+                 dateTimeZone = DateTimeZone.forID(timeZoneKey.getId());
+            }
+            catch (IllegalArgumentException e) {
+                // This can stop this Class from loading and
+                // any UDF calls using this will fail.
+                continue;
+            }
             DATE_TIME_ZONES[zoneKey] = dateTimeZone;
             CHRONOLOGIES[zoneKey] = ISOChronology.getInstance(dateTimeZone);
             if (dateTimeZone.isFixed() && dateTimeZone.getOffset(0) % 60_000 == 0) {
