@@ -104,7 +104,7 @@ public class UdfFactory
                     if (WindowFunctionDefinition.class.isAssignableFrom(clazz)) {
                         try {
                             WindowFunctionDefinition def = (WindowFunctionDefinition) clazz.newInstance();
-                            builder.window(def.getName(), def.getReturnType(), def.getArgumentTypes(), (Class<? extends WindowFunction>) clazz);
+                            builder.window((Class<? extends WindowFunction>) clazz);
                         }
                         catch (InstantiationException | IllegalAccessException e) {
                             log.info(String.format("Could not add %s, exception: %s, stack: %s", clazz.getName(), e, e.getStackTrace()));
