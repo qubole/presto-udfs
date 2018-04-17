@@ -15,14 +15,7 @@
  */
 package com.qubole.presto.udfs.sqlFunction.hiveUdfs;
 
-import com.facebook.presto.bytecode.BytecodeBlock;
-import com.facebook.presto.bytecode.ClassDefinition;
-import com.facebook.presto.bytecode.CompilerUtils;
-import com.facebook.presto.bytecode.DynamicClassLoader;
-import com.facebook.presto.bytecode.MethodDefinition;
-import com.facebook.presto.bytecode.Parameter;
-import com.facebook.presto.bytecode.Scope;
-import com.facebook.presto.bytecode.Variable;
+import com.facebook.presto.util.CompilerUtils;
 import com.facebook.presto.metadata.BoundVariables;
 import com.facebook.presto.metadata.FunctionKind;
 import com.facebook.presto.metadata.FunctionRegistry;
@@ -39,6 +32,13 @@ import com.facebook.presto.sql.gen.CallSiteBinder;
 import com.facebook.presto.type.BigintOperators;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
+import io.airlift.bytecode.BytecodeBlock;
+import io.airlift.bytecode.ClassDefinition;
+import io.airlift.bytecode.DynamicClassLoader;
+import io.airlift.bytecode.MethodDefinition;
+import io.airlift.bytecode.Parameter;
+import io.airlift.bytecode.Scope;
+import io.airlift.bytecode.Variable;
 import io.airlift.slice.Slice;
 
 import java.lang.invoke.MethodHandle;
@@ -46,20 +46,23 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.facebook.presto.bytecode.Access.FINAL;
-import static com.facebook.presto.bytecode.Access.PRIVATE;
-import static com.facebook.presto.bytecode.Access.PUBLIC;
-import static com.facebook.presto.bytecode.Access.STATIC;
-import static com.facebook.presto.bytecode.Access.a;
-import static com.facebook.presto.bytecode.CompilerUtils.defineClass;
-import static com.facebook.presto.bytecode.Parameter.arg;
-import static com.facebook.presto.bytecode.ParameterizedType.type;
+import static com.facebook.presto.operator.scalar.ScalarFunctionImplementation.ArgumentProperty.valueTypeArgumentProperty;
+import static com.facebook.presto.operator.scalar.ScalarFunctionImplementation.NullConvention.RETURN_NULL_ON_NULL;
+import static com.facebook.presto.operator.scalar.ScalarFunctionImplementation.NullConvention.USE_BOXED_TYPE;
+import static com.facebook.presto.util.CompilerUtils.defineClass;
 import static com.facebook.presto.metadata.Signature.typeVariable;
 import static com.facebook.presto.spi.StandardErrorCode.GENERIC_INTERNAL_ERROR;
 import static com.facebook.presto.spi.StandardErrorCode.INVALID_FUNCTION_ARGUMENT;
 import static com.facebook.presto.spi.type.TypeSignature.parseTypeSignature;
 import static com.facebook.presto.sql.gen.SqlTypeBytecodeExpression.constantType;
 import static com.facebook.presto.util.Reflection.methodHandle;
+import static io.airlift.bytecode.Access.FINAL;
+import static io.airlift.bytecode.Access.PRIVATE;
+import static io.airlift.bytecode.Access.PUBLIC;
+import static io.airlift.bytecode.Access.STATIC;
+import static io.airlift.bytecode.Access.a;
+import static io.airlift.bytecode.Parameter.arg;
+import static io.airlift.bytecode.ParameterizedType.type;
 import static java.lang.String.format;
 
 public final class Hash
@@ -120,7 +123,12 @@ public final class Hash
         MethodHandle methodHandle = methodHandle(clazz, "hash", stackTypes.toArray(new Class<?>[stackTypes.size()]));
         List<Boolean> nullableParameters = ImmutableList.copyOf(Collections.nCopies(stackTypes.size(), false));
 
-        return new ScalarFunctionImplementation(false, nullableParameters, methodHandle, isDeterministic());
+        List<ScalarFunctionImplementation.ArgumentProperty> argumentProperties = nullableParameters.stream()
+                .map(nullable -> nullable
+                        ? valueTypeArgumentProperty(USE_BOXED_TYPE)
+                        : valueTypeArgumentProperty(RETURN_NULL_ON_NULL))
+                .collect(Collectors.toList());
+        return new ScalarFunctionImplementation(false, argumentProperties, methodHandle, isDeterministic());
     }
 
     public static Class<?> generateHash(List<Class<?>> nativeContainerTypes, Type type)
