@@ -4,7 +4,7 @@
   <groupId>com.qubole.presto</groupId>
   <artifactId>udfs</artifactId>
   <name>PrestoUDFs</name>
-  <version>2.0.1-SNAPSHOT</version>
+  <version>2.0.3-SNAPSHOT</version>
   <description>Common Functions for the Facebook Presto SQL Engine</description>
   <url>https://github.com/qubole/presto-udfs</url>
   <developers>
@@ -151,13 +151,13 @@
     <dependency>
       <groupId>com.facebook.presto</groupId>
       <artifactId>presto-spi</artifactId>
-      <version>0.180</version>
+      <version>0.193</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>com.facebook.presto</groupId>
       <artifactId>presto-main</artifactId>
-      <version>0.180</version>
+      <version>0.193</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -189,7 +189,7 @@
     <javax.inject.version>1</javax.inject.version>
     <guava.version>18.0</guava.version>
     <maven.compiler.source>1.8</maven.compiler.source>
-    <presto.version>0.180</presto.version>
+    <presto.version>0.193</presto.version>
     <maven.compiler.target>1.8</maven.compiler.target>
     <io.airlift.log.version>0.125</io.airlift.log.version>
   </properties>
