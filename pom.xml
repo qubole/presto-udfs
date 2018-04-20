@@ -102,7 +102,7 @@
 
     <groupId>com.qubole.presto</groupId>
     <artifactId>udfs</artifactId>
-    <version>2.0.2-SNAPSHOT</version>
+    <version>2.0.2</version>
     <name>PrestoUDFs</name>
     <url>https://github.com/qubole/presto-udfs</url>
     <description>Common Functions for the Facebook Presto SQL Engine</description>
@@ -111,7 +111,7 @@
         <url>https://github.com/qubole/presto-udfs</url>
         <connection>scm:git:git://github.com/qubole/presto-udfs.git</connection>
         <developerConnection>scm:git:git@github.com:qubole/presto-udfs.git</developerConnection>
-      <tag>HEAD</tag>
+      <tag>udfs-2.0.2</tag>
     </scm>
 
     <licenses>
