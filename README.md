@@ -24,7 +24,7 @@ The details about how to plug in presto UDFs can be found [here](https://www.qub
 
 | Presto Version| Last Compatible Release|
 | ------------- |:-------------:|
-| _ver 0.193_      | current    |
+| _ver 0.193+_     | current    |
 | _ver 0.180_      | udfs-2.0.2 |
 | _ver 0.157_      | udfs-2.0.1 |
 | _ver 0.142_      | udfs-1.0.0 |
@@ -66,6 +66,11 @@ The repository contains the following UDFs implemented for Presto :
  15. **format_unixtimestamp(bigint unixtime[, string format]) -> string**<br />
       Converts the number of seconds from unix epoch (1970-01-01 00:00:00 UTC) to a string representing the timestamp of that moment in the current system time zone in the format of "1970-01-01 00:00:00" unless a format string is specified. If a format string is specified the epoch time is converted in the specified format. More information about the formatter can be found [here](https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html).<br />
       _**NOTE :** Due to name collision of presto 0.142's implementaion of `from_unixtime(bigint unixtime)` function, which returns the value as a timestamp type and Hive's `from_unixtime(bigint unixtime[, string format])` function, which returns the value as string type and supports formatter, the hive UDF has been implemented as `format_unixtimestamp(bigint unixtime[, string format])`._
+ 16. **from_duration(string duration, string duration_unit) -> double**<br />
+      Converts a string representing time duration in airlift's Duration format (https://github.com/airlift/units/blob/master/src/main/java/io/airlift/units/Duration.java) to a double representing time in specified unit: from_duration('4h', 'ms') = 1.44E7.
+ 17. **from_datasize(string datasize, string size_unit) -> double**<br />
+       Converts a string representing data size in airlift's DataSize format (https://github.com/airlift/units/blob/master/src/main/java/io/airlift/units/DataSize.java) to a double representing size in specified unit: from_datasize('1GB', 'B') = 1.073741824E9.
+
 
 * **MATH Functions**
  1. **pmod(INT a, INT b) -> INT, pmod(DOUBLE a, DOUBLE b) -> DOUBLE**<br />
@@ -99,7 +104,7 @@ The repository contains the following UDFs implemented for Presto :
       Returns a hash value of the arguments. hash('a','b','c') = 143025634.
 
 ## Adding User Defined Functions to Presto-UDFs
- Functions can be added using annotations, follow https://prestodb.io/docs/0.157/develop/functions.html for details on how to add functions
+ Functions can be added using annotations, follow https://prestodb.io/docs/current/develop/functions.html for details on how to add functions
 
   ** Note that Code generated functions were supported only till v1.0.0 due to the limitations presto new versions of Presto puts on plugins
 
