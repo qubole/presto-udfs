@@ -22,6 +22,8 @@ import com.facebook.presto.spi.function.SqlType;
 import com.facebook.presto.spi.type.StandardTypes;
 import io.airlift.slice.Slice;
 import io.airlift.slice.Slices;
+import io.airlift.units.DataSize;
+import io.airlift.units.Duration;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -34,6 +36,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.IsoFields;
+import java.util.concurrent.TimeUnit;
 
 import static com.qubole.presto.udfs.scalar.hiveUdfs.PrestoDateTimeFunctions.addFieldValueDate;
 import static com.qubole.presto.udfs.scalar.hiveUdfs.PrestoDateTimeFunctions.diffDate;
@@ -307,5 +310,30 @@ public class ExtendedDateTimeFunctions
         ZonedDateTime timestamp = ZonedDateTime.of(LocalDateTime.ofEpochSecond(epochtime, 0, ZoneOffset.UTC), ZoneId.of("UTC"));
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format.toStringUtf8());
         return utf8Slice(timestamp.format(formatter));
+    }
+
+    @Description("Converts a string representing time duration in airlift's Duration format to a double representing time in the specified time unit")
+    @ScalarFunction("from_duration")
+    @SqlType(StandardTypes.DOUBLE)
+    public static double fromDuration(@SqlType(StandardTypes.VARCHAR) Slice duration, @SqlType(StandardTypes.VARCHAR) Slice timeUnitString)
+    {
+        Duration timeDuration = Duration.valueOf(duration.toStringUtf8());
+        TimeUnit timeUnit = Duration.valueOfTimeUnit(timeUnitString.toStringUtf8());
+        return timeDuration.getValue(timeUnit);
+    }
+
+    @Description("Converts a string representing data size in airlift's DataSize format to a double representing size in the specified size unit")
+    @ScalarFunction("from_datasize")
+    @SqlType(StandardTypes.DOUBLE)
+    public static double fromDataSize(@SqlType(StandardTypes.VARCHAR) Slice size, @SqlType(StandardTypes.VARCHAR) Slice sizeUnit)
+    {
+        String sizeUnitString = sizeUnit.toStringUtf8();
+        DataSize dataSize = DataSize.valueOf(size.toStringUtf8());
+        for (DataSize.Unit unit : DataSize.Unit.values()) {
+            if (unit.getUnitString().equals(sizeUnitString)) {
+                return dataSize.getValue(unit);
+            }
+        }
+        throw new IllegalArgumentException("Unknown unit: " + sizeUnitString);
     }
 }
