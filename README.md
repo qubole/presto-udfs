@@ -104,7 +104,7 @@ The repository contains the following UDFs implemented for Presto :
       Returns a hash value of the arguments. hash('a','b','c') = 143025634.
 
 ## Adding User Defined Functions to Presto-UDFs
- Functions can be added using annotations, follow https://prestodb.io/docs/current/develop/functions.html for details on how to add functions
+ Functions can be added using annotations, follow https://prestosql.io/docs/current/develop/functions.html for details on how to add functions
 
   ** Note that Code generated functions were supported only till v1.0.0 due to the limitations presto new versions of Presto puts on plugins
 
