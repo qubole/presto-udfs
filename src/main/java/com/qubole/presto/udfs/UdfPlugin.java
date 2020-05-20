@@ -15,7 +15,8 @@
  */
 package com.qubole.presto.udfs;
 
-import com.facebook.presto.spi.Plugin;
+import com.qubole.presto.udfs.aggregation.AverageAggregation;
+import io.prestosql.spi.Plugin;
 import com.google.common.collect.ImmutableSet;
 import com.qubole.presto.udfs.scalar.hiveUdfs.ExtendedDateTimeFunctions;
 import com.qubole.presto.udfs.scalar.hiveUdfs.ExtendedMathematicFunctions;
@@ -37,7 +38,6 @@ public class UdfPlugin implements Plugin
          * Unsupported udfs right now:
          * Hash
          * Nvl
-         * array_aggr
          */
         return ImmutableSet.<Class<?>>builder()
                 .add(ExtendedDateTimeFunctions.class)
@@ -45,6 +45,7 @@ public class UdfPlugin implements Plugin
                 .add(ExtendedStringFunctions.class)
                 .add(FirstNonNullValueFunction.class)
                 .add(LastNonNullValueFunction.class)
+                .add(AverageAggregation.class)
                 .build();
     }
 }

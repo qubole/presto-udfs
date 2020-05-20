@@ -15,11 +15,11 @@
  */
 package com.qubole.presto.udfs.scalar.hiveUdfs;
 
-import com.facebook.presto.spi.function.Description;
-import com.facebook.presto.spi.function.ScalarFunction;
-import com.facebook.presto.spi.function.SqlNullable;
-import com.facebook.presto.spi.function.SqlType;
-import com.facebook.presto.spi.type.StandardTypes;
+import io.prestosql.spi.function.Description;
+import io.prestosql.spi.function.ScalarFunction;
+import io.prestosql.spi.function.SqlNullable;
+import io.prestosql.spi.function.SqlType;
+import io.prestosql.spi.type.StandardTypes;
 import io.airlift.slice.Slice;
 import io.airlift.slice.Slices;
 
@@ -98,7 +98,7 @@ public class ExtendedMathematicFunctions
     public static Slice stringIntegerToHex(@SqlType(StandardTypes.VARCHAR) Slice inputNum)
     {
         try {
-            Long num = Long.parseLong(inputNum.toStringUtf8(), 10);
+            long num = Long.parseLong(inputNum.toStringUtf8(), 10);
             String hex = Long.toHexString(num);
             return Slices.copiedBuffer(hex, UTF_8);
         }
@@ -115,7 +115,7 @@ public class ExtendedMathematicFunctions
     public static Slice BinaryrToHex(@SqlType(StandardTypes.VARBINARY) Slice inputNum)
     {
         try {
-            Long num = Long.parseLong(inputNum.toStringUtf8(), 2);
+            long num = Long.parseLong(inputNum.toStringUtf8(), 2);
             String hex = Long.toHexString(num);
             return Slices.copiedBuffer(hex, UTF_8);
         }
@@ -132,7 +132,7 @@ public class ExtendedMathematicFunctions
     public static Slice hexToInteger(@SqlType(StandardTypes.VARCHAR) Slice inputHex)
     {
         try {
-            Long num = Long.parseLong(inputHex.toStringUtf8(), 16);
+            long num = Long.parseLong(inputHex.toStringUtf8(), 16);
             return Slices.copiedBuffer(Long.toBinaryString(num), UTF_8);
         }
         catch (NumberFormatException e) {

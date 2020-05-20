@@ -15,11 +15,11 @@
  */
 package com.qubole.presto.udfs;
 
-import com.facebook.presto.metadata.FunctionListBuilder;
-import com.facebook.presto.metadata.SqlAggregationFunction;
-import com.facebook.presto.metadata.SqlFunction;
-import com.facebook.presto.spi.function.AggregationFunction;
-import com.facebook.presto.spi.function.WindowFunction;
+import io.prestosql.metadata.FunctionListBuilder;
+import io.prestosql.metadata.SqlAggregationFunction;
+import io.prestosql.metadata.SqlFunction;
+import io.prestosql.spi.function.AggregationFunction;
+import io.prestosql.spi.function.WindowFunction;
 import com.google.common.collect.Sets;
 import io.airlift.log.Logger;
 

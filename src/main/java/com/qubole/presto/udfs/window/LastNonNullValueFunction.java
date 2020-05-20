@@ -15,7 +15,7 @@
  */
 package com.qubole.presto.udfs.window;
 
-import com.facebook.presto.spi.function.WindowFunctionSignature;
+import io.prestosql.spi.function.WindowFunctionSignature;
 
 import java.util.List;
 
