@@ -23,8 +23,9 @@ The details about how to plug in presto UDFs can be found [here](https://www.qub
 ## Presto Version Compatibility
 
 | Presto Version| Last Compatible Release|
-| ------------- |:-------------:|
-| _ver 0.193+_     | current    |
+| ---------------- |:----------:|
+| _ver 300+_       | current    |
+| _ver 0.193-0.2xx_| udfs-2.0.3 |
 | _ver 0.180_      | udfs-2.0.2 |
 | _ver 0.157_      | udfs-2.0.1 |
 | _ver 0.142_      | udfs-1.0.0 |
@@ -104,7 +105,7 @@ The repository contains the following UDFs implemented for Presto :
       Returns a hash value of the arguments. hash('a','b','c') = 143025634.
 
 ## Adding User Defined Functions to Presto-UDFs
- Functions can be added using annotations, follow https://prestodb.io/docs/current/develop/functions.html for details on how to add functions
+ Functions can be added using annotations, follow https://prestosql.io/docs/current/develop/functions.html for details on how to add functions
 
   ** Note that Code generated functions were supported only till v1.0.0 due to the limitations presto new versions of Presto puts on plugins
 

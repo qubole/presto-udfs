@@ -29,8 +29,8 @@
  */
 package com.qubole.presto.udfs.scalar.hiveUdfs;
 
-import com.facebook.presto.spi.ConnectorSession;
-import com.facebook.presto.spi.PrestoException;
+import io.prestosql.spi.connector.ConnectorSession;
+import io.prestosql.spi.PrestoException;
 import com.google.common.primitives.Ints;
 import io.airlift.slice.Slice;
 import org.joda.time.Chronology;
@@ -48,8 +48,8 @@ import org.joda.time.format.ISODateTimeFormat;
 
 import java.util.Locale;
 
-import static com.facebook.presto.spi.StandardErrorCode.INVALID_FUNCTION_ARGUMENT;
-import static com.facebook.presto.spi.type.DateTimeEncoding.unpackMillisUtc;
+import static io.prestosql.spi.StandardErrorCode.INVALID_FUNCTION_ARGUMENT;
+import static io.prestosql.spi.type.DateTimeEncoding.unpackMillisUtc;
 import static com.qubole.presto.udfs.scalar.hiveUdfs.PrestoDateTimeZoneIndex.extractZoneOffsetMinutes;
 import static com.qubole.presto.udfs.scalar.hiveUdfs.PrestoDateTimeZoneIndex.getChronology;
 import static com.qubole.presto.udfs.scalar.hiveUdfs.PrestoDateTimeZoneIndex.unpackChronology;
@@ -76,20 +76,20 @@ public final class PrestoDateTimeFunctions
         return unpackMillisUtc(timestampWithTimeZone) / 1000.0;
     }
 
-    public static Slice toISO8601FromDate(ConnectorSession session,  long date)
+    public static Slice toISO8601FromDate(long date)
     {
         DateTimeFormatter formatter = ISODateTimeFormat.date()
                 .withChronology(UTC_CHRONOLOGY);
         return utf8Slice(formatter.print(DAYS.toMillis(date)));
     }
 
-    public static long addFieldValueDate(ConnectorSession session,  Slice unit,  long value,  long date)
+    public static long addFieldValueDate(Slice unit, long value, long date)
     {
         long millis = getDateField(UTC_CHRONOLOGY, unit).add(DAYS.toMillis(date), Ints.checkedCast(value));
         return MILLISECONDS.toDays(millis);
     }
 
-    public static long diffDate(ConnectorSession session, Slice unit,  long date1,  long date2)
+    public static long diffDate(Slice unit, long date1, long date2)
     {
         return getDateField(UTC_CHRONOLOGY, unit).getDifferenceAsLong(DAYS.toMillis(date2), DAYS.toMillis(date1));
     }

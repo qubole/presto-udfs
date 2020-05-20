@@ -15,11 +15,11 @@
  */
 package com.qubole.presto.udfs.scalar.hiveUdfs;
 
-import com.facebook.presto.spi.ConnectorSession;
-import com.facebook.presto.spi.function.Description;
-import com.facebook.presto.spi.function.ScalarFunction;
-import com.facebook.presto.spi.function.SqlType;
-import com.facebook.presto.spi.type.StandardTypes;
+import io.prestosql.spi.connector.ConnectorSession;
+import io.prestosql.spi.function.Description;
+import io.prestosql.spi.function.ScalarFunction;
+import io.prestosql.spi.function.SqlType;
+import io.prestosql.spi.type.StandardTypes;
 import io.airlift.slice.Slice;
 import io.airlift.slice.Slices;
 import io.airlift.units.DataSize;
@@ -49,7 +49,7 @@ import static com.qubole.presto.udfs.scalar.hiveUdfs.PrestoDateTimeFunctions.toI
 import static com.qubole.presto.udfs.scalar.hiveUdfs.PrestoDateTimeFunctions.toUnixTimeFromTimestampWithTimeZone;
 import static com.qubole.presto.udfs.scalar.hiveUdfs.PrestoDateTimeFunctions.weekFromTimestamp;
 import static com.qubole.presto.udfs.scalar.hiveUdfs.PrestoDateTimeFunctions.weekFromTimestampWithTimeZone;
-import static com.facebook.presto.spi.type.DateTimeEncoding.packDateTimeWithZone;
+import static io.prestosql.spi.type.DateTimeEncoding.packDateTimeWithZone;
 import static io.airlift.slice.Slices.utf8Slice;
 
 /**
@@ -140,10 +140,10 @@ public class ExtendedDateTimeFunctions
     @Description("Subtract number of days to the given date")
     @ScalarFunction("date_sub")
     @SqlType(StandardTypes.VARCHAR)
-    public static Slice dateSub(ConnectorSession session, @SqlType(StandardTypes.DATE) long date, @SqlType(StandardTypes.BIGINT) long value)
+    public static Slice dateSub(@SqlType(StandardTypes.DATE) long date, @SqlType(StandardTypes.BIGINT) long value)
     {
-        date = addFieldValueDate(session, Slices.utf8Slice("day"), -value, date);
-        return toISO8601FromDate(session, date);
+        date = addFieldValueDate(Slices.utf8Slice("day"), -value, date);
+        return toISO8601FromDate(date);
     }
 
     @Description("Subtract number of days to the given string date")
@@ -160,16 +160,16 @@ public class ExtendedDateTimeFunctions
     @Description("Add number of days to the given date")
     @ScalarFunction("date_add")
     @SqlType(StandardTypes.VARCHAR)
-    public static Slice dateAdd(ConnectorSession session, @SqlType(StandardTypes.DATE) long date, @SqlType(StandardTypes.BIGINT) long value)
+    public static Slice dateAdd(@SqlType(StandardTypes.DATE) long date, @SqlType(StandardTypes.BIGINT) long value)
     {
-        date = addFieldValueDate(session, Slices.utf8Slice("day"), value, date);
-        return toISO8601FromDate(session, date);
+        date = addFieldValueDate(Slices.utf8Slice("day"), value, date);
+        return toISO8601FromDate(date);
     }
 
     @Description("Add number of days to the given string date")
     @ScalarFunction("date_add")
     @SqlType(StandardTypes.VARCHAR)
-    public static Slice StringDateAdd(ConnectorSession session, @SqlType(StandardTypes.VARCHAR) Slice inputDate, @SqlType(StandardTypes.BIGINT) long value)
+    public static Slice StringDateAdd(@SqlType(StandardTypes.VARCHAR) Slice inputDate, @SqlType(StandardTypes.BIGINT) long value)
     {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd[ HH:mm:ss[.SSS]][ zzz]");
         LocalDate date = LocalDate.parse(inputDate.toStringUtf8(), formatter);
@@ -271,9 +271,9 @@ public class ExtendedDateTimeFunctions
     @Description("difference of the given dates in days")
     @ScalarFunction("datediff")
     @SqlType(StandardTypes.BIGINT)
-    public static long diffDateInDays(ConnectorSession session, @SqlType(StandardTypes.DATE) long date1, @SqlType(StandardTypes.DATE) long date2)
+    public static long diffDateInDays(@SqlType(StandardTypes.DATE) long date1, @SqlType(StandardTypes.DATE) long date2)
     {
-        return diffDate(session, utf8Slice("day"), date2, date1);
+        return diffDate(utf8Slice("day"), date2, date1);
     }
 
     @Description("difference of the given dates (Timestamps) in days")
