@@ -61,8 +61,18 @@ public class ExtendedDateTimeFunctions
 
     @Description("given timestamp in UTC and converts to given timezone")
     @ScalarFunction("from_utc_timestamp")
-    @SqlType(StandardTypes.TIMESTAMP)
+    @SqlType("timestamp(0)")
     public static long fromUtcTimestamp(@SqlType(StandardTypes.TIMESTAMP) long timestamp, @SqlType(StandardTypes.VARCHAR) Slice inputZoneId)
+    {
+        ZoneId zoneId = ZoneId.of(inputZoneId.toStringUtf8(), ZoneId.SHORT_IDS);
+        long offsetTimestamp = packDateTimeWithZone(timestamp, zoneId.toString());
+        return  timestamp + ((timeZoneHourFromTimestampWithTimeZone(offsetTimestamp) * 60 + timeZoneMinuteFromTimestampWithTimeZone(offsetTimestamp)) * 60) * 1000;
+    }
+
+    @Description("given timestamp(0) in UTC and converts to given timezone")
+    @ScalarFunction("from_utc_timestamp")
+    @SqlType("timestamp(0)")
+    public static long fromUtcTimestamp0(@SqlType("timestamp(0)") long timestamp, @SqlType(StandardTypes.VARCHAR) Slice inputZoneId)
     {
         ZoneId zoneId = ZoneId.of(inputZoneId.toStringUtf8(), ZoneId.SHORT_IDS);
         long offsetTimestamp = packDateTimeWithZone(timestamp, zoneId.toString());
@@ -71,7 +81,7 @@ public class ExtendedDateTimeFunctions
 
     @Description("given timestamp (in varchar) in UTC and converts to given timezone")
     @ScalarFunction("from_utc_timestamp")
-    @SqlType(StandardTypes.TIMESTAMP)
+    @SqlType("timestamp(0)")
     public static long fromUtcTimestamp(@SqlType(StandardTypes.VARCHAR) Slice inputTimestamp, @SqlType(StandardTypes.VARCHAR) Slice inputZoneId)
     {
         Timestamp javaTimestamp = Timestamp.valueOf(inputTimestamp.toStringUtf8());
@@ -82,7 +92,7 @@ public class ExtendedDateTimeFunctions
 
     @Description("given timestamp in a timezone convert it to UTC")
     @ScalarFunction("to_utc_timestamp")
-    @SqlType(StandardTypes.TIMESTAMP)
+    @SqlType("timestamp(0)")
     public static long toUtcTimestamp(@SqlType(StandardTypes.TIMESTAMP) long timestamp, @SqlType(StandardTypes.VARCHAR) Slice inputZoneId)
     {
         ZoneId zoneId = ZoneId.of(inputZoneId.toStringUtf8(), ZoneId.SHORT_IDS);
@@ -92,7 +102,7 @@ public class ExtendedDateTimeFunctions
 
     @Description("given timestamp (in varchar) in a timezone convert it to UTC")
     @ScalarFunction("to_utc_timestamp")
-    @SqlType(StandardTypes.TIMESTAMP)
+    @SqlType("timestamp(0)")
     public static long toUtcTimestamp(@SqlType(StandardTypes.VARCHAR) Slice inputTimestamp, @SqlType(StandardTypes.VARCHAR) Slice inputZoneId)
     {
         Timestamp javaTimestamp = Timestamp.valueOf(inputTimestamp.toStringUtf8());
@@ -117,6 +127,14 @@ public class ExtendedDateTimeFunctions
     public static Slice timestampToDate(ConnectorSession session, @SqlType(StandardTypes.TIMESTAMP) long timestamp)
     {
           return formatDatetime(session, timestamp, Slices.utf8Slice("yyyy-MM-dd"));
+    }
+
+    @Description("Returns the date part of the timestamp(3)")
+    @ScalarFunction("to_date")
+    @SqlType(StandardTypes.VARCHAR)
+    public static Slice timestamp0ToDate(ConnectorSession session, @SqlType("timestamp(0)") long timestamp)
+    {
+        return formatDatetime(session, timestamp, Slices.utf8Slice("yyyy-MM-dd"));
     }
 
     @Description("Returns the date part of the timestamp with time zone")
@@ -213,6 +231,14 @@ public class ExtendedDateTimeFunctions
         return weekFromTimestamp(session, timestamp);
     }
 
+    @Description("week of the year of the given string timestamp(0)")
+    @ScalarFunction("weekofyear")
+    @SqlType(StandardTypes.BIGINT)
+    public static long weekOfYearFromTimestamp0(ConnectorSession session, @SqlType("timestamp(0)") long timestamp)
+    {
+        return weekFromTimestamp(session, timestamp);
+    }
+
     @Description("week of the year of the given string timestamp")
     @ScalarFunction("weekofyear")
     @SqlType(StandardTypes.BIGINT)
@@ -274,6 +300,14 @@ public class ExtendedDateTimeFunctions
     public static long diffDateInDays(@SqlType(StandardTypes.DATE) long date1, @SqlType(StandardTypes.DATE) long date2)
     {
         return diffDate(utf8Slice("day"), date2, date1);
+    }
+
+    @Description("difference of the given dates (Timestamps) in days")
+    @ScalarFunction("datediff")
+    @SqlType(StandardTypes.BIGINT)
+    public static long diffTimestamp0DateInDays(ConnectorSession session, @SqlType("timestamp(0)") long timestamp1, @SqlType("timestamp(0)") long timestamp2)
+    {
+        return diffTimestamp(session, utf8Slice("day"), timestamp2, timestamp1);
     }
 
     @Description("difference of the given dates (Timestamps) in days")
