@@ -24,7 +24,8 @@ The details about how to plug in presto UDFs can be found [here](https://www.qub
 
 | Presto Version| Last Compatible Release|
 | ---------------- |:----------:|
-| _ver 300+_       | current    |
+| _ver 340+_       | current    |
+| _ver 300+_       | udfs-3.0.0 |
 | _ver 0.193-0.2xx_| udfs-2.0.3 |
 | _ver 0.180_      | udfs-2.0.2 |
 | _ver 0.157_      | udfs-2.0.1 |

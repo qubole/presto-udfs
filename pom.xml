@@ -21,83 +21,94 @@
     <!--
         <air.main.basedir>${project.parent.basedir}</air.main.basedir>
     -->
-        <presto.version>317</presto.version>
+        <presto.version>340</presto.version>
         <slice.version>0.36</slice.version>
         <guava.version>26.0-jre</guava.version>
         <javax.inject.version>1</javax.inject.version>
         <io.airlift.log.version>0.183</io.airlift.log.version>
+        <io.airlift.units.version>1.6</io.airlift.units.version>
         <jodatime.version>2.8.1</jodatime.version>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
 
     <build>
-       <plugins> 
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-checkstyle-plugin</artifactId>
-            <version>2.17</version>
-            <executions>
-                <execution>
-                    <id>validate</id>
-                    <phase>validate</phase>
-                    <configuration>
-                       <configLocation>src/checkstyle/checks.xml</configLocation>
-                        <encoding>UTF-8</encoding>
-                        <consoleOutput>true</consoleOutput>
-                        <failsOnError>true</failsOnError>
-                    </configuration>
-                <goals>
-                    <goal>check</goal>
-                </goals>
-                </execution>
-            </executions>
-        </plugin>
-           <plugin>
-               <groupId>org.apache.maven.plugins</groupId>
-               <artifactId>maven-release-plugin</artifactId>
-               <version>2.5.1</version>
-           </plugin>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>2.17</version>
+                <executions>
+                    <execution>
+                        <id>validate</id>
+                        <phase>validate</phase>
+                        <configuration>
+                           <configLocation>src/checkstyle/checks.xml</configLocation>
+                            <encoding>UTF-8</encoding>
+                            <consoleOutput>true</consoleOutput>
+                            <failsOnError>true</failsOnError>
+                        </configuration>
+                    <goals>
+                        <goal>check</goal>
+                    </goals>
+                    </execution>
+                </executions>
+            </plugin>
+	          <plugin>
+    		        <groupId>org.apache.maven.plugins</groupId>
+    		        <artifactId>maven-compiler-plugin</artifactId>
+    		        <version>3.8.1</version>
+    		        <configuration>
+                		<release>11</release>
+    		        </configuration>
+	          </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.1</version>
+            </plugin>
 
-           <plugin>
-               <groupId>org.apache.maven.plugins</groupId>
-               <artifactId>maven-shade-plugin</artifactId>
-               <version>2.3</version>
-               <executions>
-                   <execution>
-                       <phase>package</phase>
-                       <goals>
-                           <goal>shade</goal>
-                       </goals>
-                       <configuration>
-                           <artifactSet>
-                               <!-- dont need to add airlift.slice, presto provides it to all plugins -->
-                               <includes>
-                                   <include>com.google.guava:guava</include>
-                                   <include>io.airlift:log</include>
-                                   <include>joda-time:joda-time</include>
-                               </includes>
-                           </artifactSet>
-                           <relocations>
-                               <relocation>
-                                   <pattern>org.joda</pattern>
-                                   <shadedPattern>org.joda.shaded</shadedPattern>
-                               </relocation>
-                               <relocation>
-                                   <pattern>com.google</pattern>
-                                   <shadedPattern>com.google.shaded</shadedPattern>
-                               </relocation>
-                               <relocation>
-                                   <pattern>io.airlift.log</pattern>
-                                   <shadedPattern>io.airlift.log.shaded</shadedPattern>
-                               </relocation>
-                           </relocations>
-
-                       </configuration>
-                   </execution>
-               </executions>
-           </plugin>
-      </plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.4</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <artifactSet>
+                                <!-- dont need to add airlift.slice, presto provides it to all plugins -->
+                                <includes>
+                                    <include>com.google.guava:guava</include>
+                                    <include>io.airlift:log</include>
+                                    <include>io.airlift:units</include>
+                                    <include>joda-time:joda-time</include>
+                                </includes>
+                            </artifactSet>
+                            <relocations>
+                                <relocation>
+                                    <pattern>org.joda</pattern>
+                                    <shadedPattern>org.joda.shaded</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.google</pattern>
+                                    <shadedPattern>com.google.shaded</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>io.airlift.log</pattern>
+                                    <shadedPattern>io.airlift.log.shaded</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>io.airlift.units</pattern>
+                                    <shadedPattern>io.airlift.units.shaded</shadedPattern>
+                                </relocation>
+                            </relocations>
+                        </configuration>
+                    </execution>
+                </executions>
+             </plugin>
+         </plugins>
     </build>
 
     <groupId>com.qubole.presto</groupId>
@@ -168,6 +179,12 @@
             <groupId>io.airlift</groupId>
             <artifactId>log</artifactId>
             <version>${io.airlift.log.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.airlift</groupId>
+            <artifactId>units</artifactId>
+            <version>${io.airlift.units.version}</version>
         </dependency>
 
         <dependency>
