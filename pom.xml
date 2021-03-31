@@ -23,7 +23,7 @@
     -->
         <presto.version>317</presto.version>
         <slice.version>0.36</slice.version>
-        <guava.version>26.0-jre</guava.version>
+        <guava.version>29.0-jre</guava.version>
         <javax.inject.version>1</javax.inject.version>
         <io.airlift.log.version>0.183</io.airlift.log.version>
         <jodatime.version>2.8.1</jodatime.version>
